@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repair Requests | RepairShop Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #8b5cf6;
+            --dark: #1f2937;
+            --light: #f9fafb;
+            --gray: #6b7280;
+            --gray-light: #e5e7eb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            min-height: 100vh;
+            color: var(--dark);
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(180deg, var(--dark) 0%, #111827 100%);
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            z-index: 1000;
+            padding: 0;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .logo-text h3 {
+            margin: 0;
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, #d1d5db 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-text p {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin: 4px 0 0;
+            font-weight: 300;
+        }
+
+        .nav-menu {
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            padding: 0 15px;
+            margin: 5px 0;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 0.95rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: linear-gradient(180deg, var(--primary) 0%, var(--primary-dark) 100%);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding-left: 22px;
+        }
+
+        .nav-link:hover::before {
+            transform: translateX(0);
+        }
+
+        .nav-link.active {
+            background: rgba(59, 130, 246, 0.2);
+            color: white;
+            padding-left: 22px;
+        }
+
+        .nav-link.active::before {
+            transform: translateX(0);
+        }
+
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .nav-link.logout {
+            color: #f87171;
+        }
+
+        .nav-link.logout:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            margin-left: 260px;
+            padding: 30px;
+            min-height: 100vh;
+        }
+
+        /* ===== PAGE HEADER ===== */
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .header-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 16px;
+            padding: 25px 30px;
+            color: white;
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .page-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .title-icon {
+            width: 55px;
+            height: 55px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .title-text h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .title-text p {
+            opacity: 0.9;
+            margin: 5px 0 0;
+            font-size: 0.95rem;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .stat-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        /* ===== FILTERS SECTION ===== */
+        .filters-section {
+            margin-bottom: 30px;
+        }
+
+        .filters-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--gray-light);
+        }
+
+        .filters-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .filters-header h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid var(--gray-light);
+            background: white;
+            border-radius: 10px;
+            font-weight: 500;
+            color: var(--gray);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            max-width: 300px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 20px 12px 45px;
+            border: 2px solid var(--gray-light);
+            border-radius: 12px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+
+        /* ===== REPAIR TABLE ===== */
+        .table-container {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--gray-light);
+            margin-bottom: 30px;
+        }
+
+        .table {
+            margin: 0;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .table thead {
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+        }
+
+        .table thead th {
+            padding: 18px 20px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: none;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .table thead th:last-child {
+            border-right: none;
+        }
+
+        .table tbody tr {
+            transition: all 0.3s ease;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .table tbody tr:hover {
+            background: linear-gradient(90deg, #f8fafc 0%, #f1f5f9 100%);
+            transform: scale(1.001);
+        }
+
+        .table tbody td {
+            padding: 18px 20px;
+            vertical-align: middle;
+            border: none;
+            font-size: 0.95rem;
+            color: var(--dark);
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+
+        .status-pending {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: #92400e;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+        }
+
+        .status-in-progress {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        }
+
+        .status-completed {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        }
+
+        .status-rejected {
+            background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        }
+
+        /* Device Info */
+        .device-cell {
+            min-width: 200px;
+        }
+
+        .device-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .device-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--info) 0%, #7c3aed 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+        }
+
+        .device-details h4 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .device-details p {
+            margin: 4px 0 0;
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        /* Problem Description */
+        .problem-cell {
+            max-width: 300px;
+            min-width: 200px;
+        }
+
+        .problem-desc {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.5;
+            color: var(--dark);
+        }
+
+        /* Date Column */
+        .date-cell {
+            white-space: nowrap;
+        }
+
+        .date-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 10px;
+            color: var(--primary-dark);
+            font-weight: 500;
+        }
+
+        .date-badge i {
+            color: var(--primary);
+        }
+
+        /* Action Buttons */
+        .action-cell {
+            min-width: 100px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-view {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        }
+
+        .btn-view:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3);
+            background: linear-gradient(135deg, var(--primary-dark) 0%, #1d4ed8 100%);
+            color: white;
+        }
+
+        /* ===== PAGINATION ===== */
+        .pagination-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--gray-light);
+        }
+
+        .pagination-info {
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+
+        .pagination {
+            margin: 0;
+        }
+
+        .page-link {
+            padding: 10px 16px;
+            border: 2px solid var(--gray-light);
+            color: var(--dark);
+            font-weight: 500;
+            margin: 0 4px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .page-link:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .page-item.active .page-link {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            text-align: center;
+            padding: 80px 30px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+            border: 2px dashed var(--gray-light);
+        }
+
+        .empty-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--gray-light) 0%, #d1d5db 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+            font-size: 2.5rem;
+            color: var(--gray);
+        }
+
+        .empty-state h3 {
+            font-size: 1.8rem;
+            color: var(--dark);
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .empty-state p {
+            color: var(--gray);
+            max-width: 400px;
+            margin: 0 auto 30px;
+            line-height: 1.6;
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 1200px) {
+            .sidebar {
+                width: 240px;
+            }
+            .main-content {
+                margin-left: 240px;
+                padding: 25px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 220px;
+            }
+            .main-content {
+                margin-left: 220px;
+                padding: 20px;
+            }
+            .header-card {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+            .header-stats {
+                justify-content: center;
+            }
+            .filters-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .search-box {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            .table-container {
+                overflow-x: auto;
+            }
+            .table {
+                min-width: 800px;
+            }
+            .menu-toggle {
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                z-index: 1001;
+                background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+                color: white;
+                width: 50px;
+                height: 50px;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.3rem;
+                cursor: pointer;
+                box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 15px;
+            }
+            .header-card {
+                padding: 20px;
+            }
+            .title-text h1 {
+                font-size: 1.5rem;
+            }
+            .stat-badge {
+                min-width: 80px;
+                padding: 8px 15px;
+            }
+            .stat-value {
+                font-size: 1.3rem;
+            }
+            .filter-controls {
+                flex-direction: column;
+            }
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .table tbody tr {
+            animation: fadeInUp 0.4s ease forwards;
+            animation-delay: calc(var(--row-index) * 0.05s);
+            opacity: 0;
+        }
+
+        /* ===== SCROLLBAR STYLING ===== */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--gray) 0%, #4b5563 100%);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #4b5563 0%, var(--dark) 100%);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Mobile Menu Toggle -->
+    <div class="menu-toggle" onclick="toggleSidebar()" style="display: none;">
+        <i class="fas fa-bars"></i>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-tools"></i>
+                </div>
+                <div class="logo-text">
+                    <h3>RepairShop Pro</h3>
+                    <p>Admin Dashboard</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-menu">
+            <div class="nav-item">
+                <a href="{% url 'admin_dashboard' %}" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    <span>Manage Users</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'admin_repair_requests' %}" class="nav-link active">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Repair Requests</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Reports</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </div>
+            <div class="nav-item mt-auto">
+                <a href="{% url 'admin_logout' %}" class="nav-link logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="header-card">
+                <div class="page-title">
+                    <div class="title-icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <div class="title-text">
+                        <h1>Repair Requests</h1>
+                        <p>Manage and track all repair requests</p>
+                    </div>
+                </div>
+                <div class="header-stats">
+                    <div class="stat-badge">
+                        <div class="stat-value">{{ requests|length }}</div>
+                        <div class="stat-label">Total Requests</div>
+                    </div>
+                    <div class="stat-badge">
+                        <div class="stat-value">{{ pending_count }}</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                    <div class="stat-badge">
+                        <div class="stat-value">{{ in_progress_count }}</div>
+                        <div class="stat-label">In Progress</div>
+                    </div>
+                    <div class="stat-badge">
+                        <div class="stat-value">{{ completed_count }}</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="filters-section">
+            <div class="filters-card">
+                <div class="filters-header">
+                    <h3><i class="fas fa-filter"></i> Filter Requests</h3>
+                    <div class="filter-controls">
+                        <button class="filter-btn active" data-filter="all">
+                            <i class="fas fa-layer-group"></i> All
+                        </button>
+                        <button class="filter-btn" data-filter="pending">
+                            <i class="fas fa-clock"></i> Pending
+                        </button>
+                        <button class="filter-btn" data-filter="in_progress">
+                            <i class="fas fa-tools"></i> In Progress
+                        </button>
+                        <button class="filter-btn" data-filter="completed">
+                            <i class="fas fa-check-circle"></i> Completed
+                        </button>
+                        {% comment %} <button class="filter-btn" data-filter="rejected">
+                            <i class="fas fa-times-circle"></i> Rejected
+                        </button> {% endcomment %}
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchInput" placeholder="Search requests...">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if requests %}
+        <!-- Repair Table -->
+        <div class="table-container">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>User</th>
+                            <th>Device</th>
+                            <th>Problem Description</th>
+                            <th>Status</th>
+                            <th>Submitted</th>
+                             <th>pickup Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="requestsTableBody">
+                        {% for r in requests %}
+                        <tr data-status="{{ r.status }}" data-row-index="{{ forloop.counter0 }}">
+                            <td><strong>#{{ r.id|stringformat:"04d" }}</strong></td>
+                            
+                            <td>
+                                <div class="user-info">
+                                    <strong>{{ r.user.username }}</strong>
+                                    {% if r.user.email %}
+                                    <p class="text-muted mb-0">{{ r.user.email }}</p>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            
+                            <td class="device-cell">
+                                <div class="device-info">
+                                    <div class="device-icon">
+                                        {% if "laptop" in r.device_type|lower %}
+                                        <i class="fas fa-laptop"></i>
+                                        {% elif "mobile" in r.device_type|lower or "phone" in r.device_type|lower %}
+                                        <i class="fas fa-mobile-alt"></i>
+                                        {% elif "tablet" in r.device_type|lower %}
+                                        <i class="fas fa-tablet-alt"></i>
+                                        {% elif "desktop" in r.device_type|lower or "pc" in r.device_type|lower %}
+                                        <i class="fas fa-desktop"></i>
+                                        {% else %}
+                                        <i class="fas fa-tools"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="device-details">
+                                        <h4>{{ r.device_type }}</h4>
+                                        <p>{{ r.device_brand }} {{ r.device_model }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            
+                            <td class="problem-cell">
+                                <div class="problem-desc" title="{{ r.problem_description }}">
+                                    {{ r.problem_description|truncatechars:80 }}
+                                </div>
+                                {% if r.urgency_level %}
+                                <small class="text-danger mt-1">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    {{ r.urgency_level|title }}
+                                </small>
+                                {% endif %}
+                            </td>
+                            
+                            <td>
+                                {% if r.status == 'pending' %}
+                                    <span class="status-badge status-pending">
+                                        <i class="fas fa-clock"></i> Pending
+                                    </span>
+                                {% elif r.status == 'in_progress' %}
+                                    <span class="status-badge status-in-progress">
+                                        <i class="fas fa-tools"></i> In Progress
+                                    </span>
+                                {% elif r.status == 'completed' %}
+                                    <span class="status-badge status-completed">
+                                        <i class="fas fa-check-circle"></i> Completed
+                                    </span>
+                                {% elif r.status == 'rejected' %}
+                                    <span class="status-badge status-rejected">
+                                        <i class="fas fa-times-circle"></i> Rejected
+                                    </span>
+                                {% else %}
+                                    <span class="status-badge">
+                                        <i class="fas fa-question-circle"></i> {{ r.status|title }}
+                                    </span>
+                                {% endif %}
+                            </td>
+                            
+                            <td class="date-cell">
+                                <div class="date-badge">
+                                    <i class="far fa-calendar-alt"></i>
+                                    {{ r.created_at|date:"d M Y" }}
+                                </div>
+                                <small class="text-muted d-block mt-1">
+                                    {{ r.created_at|time:"g:i A" }}
+                                </small>
+                            </td>
+                        {% comment %} {% if r.service_type == 'pickup' and r.status == 'in_progress' and not r.pickup_collected %}
+<a href="{% url 'confirm_pickup_collected' r.id %}"
+   class="btn btn-warning btn-sm"
+   onclick="return confirm('Confirm that the device has been collected?');">
+    <i class="fas fa-truck"></i> Collected
+</a>
+{% endif %} {% endcomment %}
+
+  <td>
+              {% if r.service_type == 'pickup' %}
+    
+    {% if r.status == 'pending' %}
+        <span class="badge bg-warning text-dark">
+            Pickup Requested
+        </span>
+
+    {% elif r.status == 'in_progress' %}
+        {% if r.pickup_collected %}
+            <span class="badge bg-success">
+                Collected
+            </span>
+        {% else %}
+            <span class="badge bg-info">
+                  Collected
+            </span>
+        {% endif %}
+
+    {% elif r.status == 'completed' %}
+        <span class="badge bg-secondary">
+            Completed
+        </span>
+
+    {% else %}
+        <span class="text-muted">N/A</span>
+    {% endif %}
+
+{% else %}
+    <span class="text-muted">N/A</span>
+{% endif %}
+
+            </td>
+
+                            <td class="action-cell">
+                                <div class="action-buttons">
+                                    <a href="{% url 'admin_repair_request_view' r.id %}" class="btn-view">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                  
+                   
+                                  
+               {% if r.id %}
+            <a href="{% url 'admin_send_message' r.id %}" class="btn btn-primary btn-sm" title="Message">
+                <i class="fas fa-envelope"></i> Message
+            </a>
+            {% endif %}
+                                    
+                                </div>
+                            </td>
+                                    
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        {% if requests.has_other_pages %}
+        <div class="pagination-section">
+            <div class="pagination-info">
+                Showing {{ requests.start_index }} to {{ requests.end_index }} of {{ requests.paginator.count }} entries
+            </div>
+            <nav>
+                <ul class="pagination">
+                    {% if requests.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ requests.previous_page_number }}" aria-label="Previous">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in requests.paginator.page_range %}
+                        {% if requests.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                        {% elif num > requests.number|add:'-3' and num < requests.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if requests.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ requests.next_page_number }}" aria-label="Next">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+        {% else %}
+        <!-- Empty State -->
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-tools"></i>
+            </div>
+            <h3>No Repair Requests Found</h3>
+            <p>There are no repair requests in the system yet. When users submit repair requests, they will appear here.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        // Toggle sidebar on mobile
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+        }
+
+        // Initialize animations and interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show mobile menu toggle on small screens
+            if (window.innerWidth <= 768) {
+                document.querySelector('.menu-toggle').style.display = 'flex';
+            }
+
+            // Filter functionality
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const searchInput = document.getElementById('searchInput');
+            const tableRows = document.querySelectorAll('#requestsTableBody tr');
+
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    const filter = this.dataset.filter;
+                    filterRequests(filter);
+                });
+            });
+
+            // Search functionality
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                filterRequests('all', searchTerm);
+            });
+
+            function filterRequests(status, searchTerm = '') {
+                let visibleCount = 0;
+                
+                tableRows.forEach(row => {
+                    const rowStatus = row.dataset.status;
+                    const rowText = row.textContent.toLowerCase();
+                    
+                    let statusMatch = status === 'all' || rowStatus === status;
+                    let searchMatch = !searchTerm || rowText.includes(searchTerm);
+                    
+                    if (statusMatch && searchMatch) {
+                        row.style.display = '';
+                        visibleCount++;
+                        // Trigger animation
+                        row.style.animation = 'fadeInUp 0.3s ease forwards';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+                
+                // Update visible count in UI if needed
+                console.log(`${visibleCount} requests visible`);
+            }
+
+            // Add hover effects to table rows
+            tableRows.forEach(row => {
+                row.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.001)';
+                    this.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.05)';
+                });
+                
+                row.addEventListener('mouseleave', function() {
+                    this.style.transform = '';
+                    this.style.boxShadow = '';
+                });
+
+                // Add click to view details
+                const viewBtn = row.querySelector('.btn-view');
+                if (viewBtn) {
+                    row.addEventListener('click', function(e) {
+                        if (!e.target.closest('.btn-view') && !e.target.closest('.filter-btn')) {
+                            viewBtn.click();
+                        }
+                    });
+                }
+            });
+
+            // Initialize animations with delay
+            tableRows.forEach((row, index) => {
+                row.style.animationDelay = `${index * 0.05}s`;
+                setTimeout(() => {
+                    row.style.opacity = '1';
+                }, index * 50);
+            });
+
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', function(event) {
+                const sidebar = document.querySelector('.sidebar');
+                const menuToggle = document.querySelector('.menu-toggle');
+                
+                if (window.innerWidth <= 768 && 
+                    !sidebar.contains(event.target) && 
+                    !menuToggle.contains(event.target) &&
+                    sidebar.classList.contains('active')) {
+                    sidebar.classList.remove('active');
+                }
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    document.querySelector('.menu-toggle').style.display = 'none';
+                    document.querySelector('.sidebar').classList.remove('active');
+                } else {
+                    document.querySelector('.menu-toggle').style.display = 'flex';
+                }
+            });
+        });
+
+        // Simple DataTable initialization (optional)
+        $(document).ready(function() {
+            $('.table').DataTable({
+                pageLength: 10,
+                lengthChange: false,
+                order: [[0, 'desc']],
+                language: {
+                    search: "",
+                    searchPlaceholder: "Search requests..."
+                },
+                initComplete: function() {
+                    // Style the search box
+                    $('.dataTables_filter input').addClass('form-control');
+                    $('.dataTables_filter input').attr('placeholder', 'Search...');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

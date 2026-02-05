@@ -1,0 +1,43 @@
+<style>
+.repair-table-wrapper {
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.repair-table thead {
+    background: #0d6efd;
+    color: white;
+}
+
+.repair-table thead th {
+    padding: 14px;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+}
+
+.repair-table tbody tr {
+    transition: 0.2s ease;
+}
+
+.repair-table tbody tr:hover {
+    background: #f1f5ff !important;
+    transform: scale(1.01);
+    cursor: pointer;
+}
+
+.repair-table td {
+    padding: 14px 12px !important;
+    vertical-align: middle;
+}
+
+.action-btn {
+    border-radius: 50%;
+    padding: 6px 10px;
+}
+
+.action-btn i {
+    font-size: 14px;
+}
+</style>

@@ -1,0 +1,1033 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - RepairShop Pro</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --light-color: #ecf0f1;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .sidebar {
+            background-color: var(--primary-color);
+            color: white;
+            min-height: 100vh;
+            padding: 0;
+            position: fixed;
+            width: 250px;
+            z-index: 100;
+            box-shadow: 3px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .navbar-custom {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px 0;
+            margin-bottom: 30px;
+        }
+        
+        .sidebar-logo {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+        
+        .sidebar-menu a {
+            display: block;
+            color: rgba(255,255,255,0.8);
+            padding: 12px 20px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+            border-left-color: var(--secondary-color);
+        }
+        
+        .sidebar-menu i {
+            width: 25px;
+            margin-right: 10px;
+        }
+        
+        .user-profile-sidebar {
+            padding: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+        
+        .user-avatar-sidebar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--secondary-color);
+            margin-bottom: 10px;
+        }
+        
+        /* Profile Page Styling */
+        .profile-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .profile-header {
+            background: linear-gradient(135deg, var(--primary-color), #34495e);
+            color: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .profile-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(52, 152, 219, 0.2));
+            border-radius: 50%;
+            transform: translate(100px, -100px);
+        }
+        
+        .profile-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .profile-avatar-container {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .avatar-upload-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 40px;
+            height: 40px;
+            background-color: var(--secondary-color);
+            border: 3px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .avatar-upload-btn:hover {
+            background-color: #2980b9;
+            transform: scale(1.1);
+        }
+        
+        .profile-stats {
+            background-color: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+        
+        .stat-card {
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .profile-form-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+        
+        .form-title {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light-color);
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            font-size: 1.2rem;
+        }
+        
+        .section-title i {
+            margin-right: 10px;
+            color: var(--secondary-color);
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .form-control-custom {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 12px 15px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .form-control-custom:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+            outline: none;
+        }
+        
+        .error-field {
+            border-color: var(--accent-color) !important;
+        }
+        
+        .error-message {
+            color: var(--accent-color);
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+        
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--secondary-color), #2980b9);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.3);
+        }
+        
+        .btn-secondary-custom {
+            background-color: #6c757d;
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary-custom:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+        }
+        
+        .alert-message {
+            border-radius: 10px;
+            border: none;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .info-box {
+            background-color: #e7f3ff;
+            border-left: 4px solid var(--secondary-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .info-box i {
+            color: var(--secondary-color);
+            margin-right: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                min-height: auto;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+            
+            .profile-header {
+                padding: 30px 20px;
+                text-align: center;
+            }
+            
+            .profile-form-card {
+                padding: 20px;
+            }
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #6c757d;
+            cursor: pointer;
+        }
+        
+        .input-group-password {
+            position: relative;
+        }
+        
+        .profile-actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+        
+        .badge-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .badge-active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .badge-inactive {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <h3><i class="fas fa-tools me-2"></i>RepairShop Pro</h3>
+            <p class="small mb-0">User Dashboard</p>
+        </div>
+        
+        {% comment %} <div class="user-profile-sidebar">
+            <img src="{% if profile_picture_url %}{{ profile_picture_url }}{% else %}https://randomuser.me/api/portraits/men/32.jpg{% endif %}" 
+                 class="user-avatar-sidebar" alt="User Avatar" id="sidebarAvatar">
+            <h5 class="mb-1">{{ user.get_full_name|default:user.username }}</h5>
+            <p class="small text-muted">Member since {{ user.date_joined|date:"M Y" }}</p>
+        </div> {% endcomment %}
+        
+        {% comment %} <div class="sidebar-menu">
+            <a href="{% url 'userhome' %}">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a href="{% url 'new_repair' %}">
+                <i class="fas fa-plus-circle"></i> New Repair Request
+            </a>
+            <a href="{% url 'my_repairs' %}">
+                <i class="fas fa-clipboard-list"></i> My Repairs
+            </a>
+            <a href="{% url 'repair_history' %}">
+                <i class="fas fa-history"></i> Repair History
+            </a>
+            <a href="{% url 'update_profile' %}" class="active">
+                <i class="fas fa-user-edit"></i> My Profile
+            </a>
+            <a href="{% url 'help_support' %}">
+                <i class="fas fa-question-circle"></i> Help & Support
+            </a>
+            <a href="{% url 'user_settings' %}">
+                <i class="fas fa-cog"></i> Settings
+            </a>
+            <a href="{% url 'user_logout' %}" style="color: #e74c3c;">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div> {% endcomment %}
+        <div class="sidebar-menu">
+            <a href="{% url 'userhome' %}" class="active">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a href="{% url 'submit_repair_request'%}">
+                <i class="fas fa-plus-circle"></i> New Repair Request
+            </a>
+            <!-- User Profile Link -->
+            <a href="{% url 'update_profile' %}" class="nav-link">
+                <i class="fas fa-user-circle me-2"></i> User Profile
+            </a>
+            <!-- <a href="#">
+                <i class="fas fa-clipboard-list"></i> My Repairs
+            </a> -->
+            <a href="{% url 'my_requests' %}">
+                <i class="fas fa-history"></i> Repair History
+            </a>
+            <a href="{% url 'profile2' %}">
+                <i class="fas fa-user-edit"></i> Update Profile
+            </a>
+            <!-- <a href="#">
+                <i class="fas fa-question-circle"></i> Help & Support
+            </a> -->
+       <a href="{% url 'logout' %}" style="color: #e74c3c;">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+            <!-- <a href="#" style="color: #e74c3c;">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a> -->
+   
+
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Navbar -->
+        <nav class="navbar navbar-custom">
+            <div class="container-fluid">
+                <div class="d-flex justify-content-between w-100 align-items-center">
+                    <h4 class="mb-0">
+                        <i class="fas fa-user-circle me-2" style="color: var(--secondary-color);"></i>My Profile
+                    </h4>
+                    <div class="d-flex align-items-center">
+                        <span class="text-muted me-3">
+                            <i class="fas fa-calendar-alt me-1"></i>
+                            {{ current_date|date:"F d, Y" }}
+                        </span>
+                        <span class="badge badge-status {% if user.is_active %}badge-active{% else %}badge-inactive{% endif %}">
+                            {% if user.is_active %}Active{% else %}Inactive{% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Messages -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-message alert-dismissible fade show">
+                    <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %} me-2"></i>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <div class="profile-container">
+            <!-- Profile Header -->
+            <div class="profile-header">
+                <div class="profile-content">
+                    <div class="row align-items-center">
+                        <div class="col-md-3 text-center">
+                            <div class="profile-avatar-container">
+                                <img src="{% if profile_picture_url %}{{ profile_picture_url }}{% else %}https://randomuser.me/api/portraits/men/32.jpg{% endif %}" 
+                                     class="profile-avatar" alt="Profile Picture" id="profileAvatar">
+                                <div class="avatar-upload-btn" id="avatarUploadBtn">
+                                    <i class="fas fa-camera"></i>
+                                </div>
+                                <input type="file" id="avatarUploadInput" accept="image/*" class="d-none">
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <h1 class="display-6 fw-bold mb-2">{{ user.get_full_name|default:user.username }}</h1>
+                            <p class="lead mb-3">
+                                <i class="fas fa-envelope me-2"></i>{{ user.email }}
+                                {% if user.userprofile.phone %}
+                                    <span class="ms-4">
+                                        <i class="fas fa-phone me-2"></i>{{ user.userprofile.phone }}
+                                    </span>
+                                {% endif %}
+                            </p>
+                            <div class="d-flex flex-wrap gap-2">
+                                <span class="badge bg-light text-dark">
+                                    <i class="fas fa-user me-1"></i>{{ user.username }}
+                                </span>
+                                <span class="badge bg-light text-dark">
+                                    <i class="fas fa-id-card me-1"></i>ID: {{ user.id|stringformat:"06d" }}
+                                </span>
+                                <span class="badge bg-light text-dark">
+                                    <i class="fas fa-calendar-plus me-1"></i>Joined {{ user.date_joined|date:"M d, Y" }}
+                                </span>
+                                <span class="badge bg-light text-dark">
+                                    <i class="fas fa-clock me-1"></i>Last login: {{ user.last_login|timesince }} ago
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Statistics Cards -->
+            <div class="profile-stats">
+                <div class="row">
+                    <div class="col-md-3 mb-4">
+                        <div class="stat-card">
+                            <i class="fas fa-tools stat-icon" style="color: var(--secondary-color);"></i>
+                            <div class="stat-number">{{ total_repairs }}</div>
+                            <div class="stat-label">Total Repairs</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-4">
+                        <div class="stat-card">
+                            <i class="fas fa-spinner stat-icon" style="color: var(--warning-color);"></i>
+                            <div class="stat-number">{{ pending_repairs }}</div>
+                            <div class="stat-label">Pending</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-4">
+                        <div class="stat-card">
+                            <i class="fas fa-cogs stat-icon" style="color: #17a2b8;"></i>
+                            <div class="stat-number">{{ in_progress_repairs }}</div>
+                            <div class="stat-label">In Progress</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-4">
+                        <div class="stat-card">
+                            <i class="fas fa-check-circle stat-icon" style="color: var(--success-color);"></i>
+                            <div class="stat-number">{{ completed_repairs }}</div>
+                            <div class="stat-label">Completed</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Profile Form -->
+            <div class="profile-form-card">
+                <h3 class="form-title">
+                    <i class="fas fa-user-edit me-2"></i>Edit Profile Information
+                </h3>
+                
+                <form method="POST" enctype="multipart/form-data" id="profileForm">
+                    {% csrf_token %}
+                    
+                    <!-- Personal Information Section -->
+                    <div class="form-section">
+                        <h5 class="section-title">
+                            <i class="fas fa-user"></i> Personal Information
+                        </h5>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">First Name</label>
+                                <input type="text" class="form-control form-control-custom {% if errors.first_name %}error-field{% endif %}" 
+                                       name="first_name" value="{{ form_data.first_name|default:user.first_name }}">
+                                {% if errors.first_name %}
+                                    <div class="error-message">{{ errors.first_name }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Last Name</label>
+                                <input type="text" class="form-control form-control-custom {% if errors.last_name %}error-field{% endif %}" 
+                                       name="last_name" value="{{ form_data.last_name|default:user.last_name }}">
+                                {% if errors.last_name %}
+                                    <div class="error-message">{{ errors.last_name }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Email Address <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control form-control-custom {% if errors.email %}error-field{% endif %}" 
+                                   name="email" value="{{ form_data.email|default:user.email }}" required>
+                            {% if errors.email %}
+                                <div class="error-message">{{ errors.email }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Username <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-custom {% if errors.username %}error-field{% endif %}" 
+                                   name="username" value="{{ form_data.username|default:user.username }}" required>
+                            {% if errors.username %}
+                                <div class="error-message">{{ errors.username }}</div>
+                            {% endif %}
+                            <small class="text-muted">This will be used for logging in.</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Contact Information Section -->
+                    <div class="form-section">
+                        <h5 class="section-title">
+                            <i class="fas fa-address-book"></i> Contact Information
+                        </h5>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control form-control-custom {% if errors.phone %}error-field{% endif %}" 
+                                   name="phone" value="{{ form_data.phone|default:user.userprofile.phone }}"
+                                   pattern="[0-9]{10}" placeholder="10-digit phone number">
+                            {% if errors.phone %}
+                                <div class="error-message">{{ errors.phone }}</div>
+                            {% endif %}
+                            <small class="text-muted">Format: 1234567890 (without country code)</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Address</label>
+                            <textarea class="form-control form-control-custom {% if errors.address %}error-field{% endif %}" 
+                                      name="address" rows="3">{{ form_data.address|default:user.userprofile.address }}</textarea>
+                            {% if errors.address %}
+                                <div class="error-message">{{ errors.address }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">City</label>
+                                <input type="text" class="form-control form-control-custom {% if errors.city %}error-field{% endif %}" 
+                                       name="city" value="{{ form_data.city|default:user.userprofile.city }}">
+                                {% if errors.city %}
+                                    <div class="error-message">{{ errors.city }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">State</label>
+                                <input type="text" class="form-control form-control-custom {% if errors.state %}error-field{% endif %}" 
+                                       name="state" value="{{ form_data.state|default:user.userprofile.state }}">
+                                {% if errors.state %}
+                                    <div class="error-message">{{ errors.state }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Zip Code</label>
+                                <input type="text" class="form-control form-control-custom {% if errors.zip_code %}error-field{% endif %}" 
+                                       name="zip_code" value="{{ form_data.zip_code|default:user.userprofile.zip_code }}">
+                                {% if errors.zip_code %}
+                                    <div class="error-message">{{ errors.zip_code }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Country</label>
+                                <input type="text" class="form-control form-control-custom {% if errors.country %}error-field{% endif %}" 
+                                       name="country" value="{{ form_data.country|default:user.userprofile.country }}">
+                                {% if errors.country %}
+                                    <div class="error-message">{{ errors.country }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Profile Picture Section -->
+                    <div class="form-section">
+                        <h5 class="section-title">
+                            <i class="fas fa-camera"></i> Profile Picture
+                        </h5>
+                        
+                        <div class="row align-items-center">
+                            <div class="col-md-4 mb-3">
+                                <div class="text-center">
+                                    <img src="{% if profile_picture_url %}{{ profile_picture_url }}{% else %}https://randomuser.me/api/portraits/men/32.jpg{% endif %}" 
+                                         class="profile-avatar mb-3" alt="Current Profile Picture" id="currentAvatar">
+                                    <p class="small text-muted">Current profile picture</p>
+                                </div>
+                            </div>
+                            <div class="col-md-8 mb-3">
+                                <label class="form-label">Upload New Profile Picture</label>
+                                <input type="file" class="form-control form-control-custom {% if errors.profile_picture %}error-field{% endif %}" 
+                                       name="profile_picture" accept="image/*" id="profilePictureInput">
+                                {% if errors.profile_picture %}
+                                    <div class="error-message">{{ errors.profile_picture }}</div>
+                                {% endif %}
+                                <small class="text-muted">Max file size: 2MB. Supported formats: JPG, PNG, GIF</small>
+                                
+                                <div class="info-box mt-3">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span class="small">For best results, use a square image (1:1 ratio) at least 400x400 pixels.</span>
+                                </div>
+                                
+                                {% if user.userprofile.profile_picture %}
+                                <div class="mt-2">
+                                    <button type="button" class="btn btn-sm btn-outline-danger" id="removePictureBtn">
+                                        <i class="fas fa-trash me-1"></i> Remove Current Picture
+                                    </button>
+                                    <input type="hidden" name="remove_picture" id="removePictureInput" value="0">
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Password Change Section -->
+                    <div class="form-section">
+                        <h5 class="section-title">
+                            <i class="fas fa-lock"></i> Change Password
+                        </h5>
+                        
+                        <div class="info-box mb-4">
+                            <i class="fas fa-info-circle"></i>
+                            <span class="small">Leave password fields blank if you don't want to change your password.</span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Current Password</label>
+                            <div class="input-group-password">
+                                <input type="password" class="form-control form-control-custom {% if errors.current_password %}error-field{% endif %}" 
+                                       name="current_password" id="currentPassword">
+                                <button type="button" class="password-toggle" onclick="togglePassword('currentPassword')">
+                                    <i class="far fa-eye"></i>
+                                </button>
+                            </div>
+                            {% if errors.current_password %}
+                                <div class="error-message">{{ errors.current_password }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">New Password</label>
+                            <div class="input-group-password">
+                                <input type="password" class="form-control form-control-custom {% if errors.new_password %}error-field{% endif %}" 
+                                       name="new_password" id="newPassword">
+                                <button type="button" class="password-toggle" onclick="togglePassword('newPassword')">
+                                    <i class="far fa-eye"></i>
+                                </button>
+                            </div>
+                            {% if errors.new_password %}
+                                <div class="error-message">{{ errors.new_password }}</div>
+                            {% endif %}
+                            <small class="text-muted">Minimum 8 characters with at least one number and one letter.</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Confirm New Password</label>
+                            <div class="input-group-password">
+                                <input type="password" class="form-control form-control-custom {% if errors.confirm_password %}error-field{% endif %}" 
+                                       name="confirm_password" id="confirmPassword">
+                                <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">
+                                    <i class="far fa-eye"></i>
+                                </button>
+                            </div>
+                            {% if errors.confirm_password %}
+                                <div class="error-message">{{ errors.confirm_password }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Form Actions -->
+                    <div class="profile-actions">
+                        <button type="submit" class="btn btn-primary-custom">
+                            <i class="fas fa-save me-2"></i>Save Changes
+                        </button>
+                        <a href="{% url 'userhome' %}" class="btn btn-secondary-custom">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                        <a href="#" class="btn btn-outline-secondary">
+                            <i class="fas fa-history me-2"></i>View Repair History
+                        </a>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Account Information Card -->
+            <div class="profile-form-card">
+                <h3 class="form-title">
+                    <i class="fas fa-info-circle me-2"></i>Account Information
+                </h3>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-4">
+                            <h6 class="fw-bold text-muted mb-2">Account Details</h6>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="text-muted" style="width: 40%;">User ID:</td>
+                                    <td class="fw-semibold">{{ user.id|stringformat:"06d" }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Account Type:</td>
+                                    <td class="fw-semibold">
+                                        <span class="badge bg-success">Standard User</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Member Since:</td>
+                                    <td class="fw-semibold">{{ user.date_joined|date:"F d, Y" }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Last Login:</td>
+                                    <td class="fw-semibold">{{ user.last_login|date:"F d, Y h:i A" }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Account Status:</td>
+                                    <td class="fw-semibold">
+                                        {% if user.is_active %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-4">
+                            <h6 class="fw-bold text-muted mb-2">Quick Actions</h6>
+                            <div class="d-grid gap-2">
+                                <a href="#" class="btn btn-outline-primary">
+                                    <i class="fas fa-plus-circle me-2"></i>New Repair Request
+                                </a>
+                                <a href="#" class="btn btn-outline-secondary">
+                                    <i class="fas fa-clipboard-list me-2"></i>View My Repairs
+                                </a>
+                                <a href="#" class="btn btn-outline-info">
+                                    <i class="fas fa-question-circle me-2"></i>Get Help
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Profile picture upload preview
+            const profilePictureInput = document.getElementById('profilePictureInput');
+            const currentAvatar = document.getElementById('currentAvatar');
+            const profileAvatar = document.getElementById('profileAvatar');
+            const sidebarAvatar = document.getElementById('sidebarAvatar');
+            
+            profilePictureInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    // Validate file size (2MB max)
+                    if (this.files[0].size > 2 * 1024 * 1024) {
+                        alert('File size exceeds 2MB limit. Please choose a smaller file.');
+                        this.value = '';
+                        return;
+                    }
+                    
+                    // Validate file type
+                    const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+                    if (!validTypes.includes(this.files[0].type)) {
+                        alert('Only JPG, PNG, and GIF images are allowed.');
+                        this.value = '';
+                        return;
+                    }
+                    
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        currentAvatar.src = e.target.result;
+                        profileAvatar.src = e.target.result;
+                        sidebarAvatar.src = e.target.result;
+                    }
+                    
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+            
+            // Avatar upload button click
+            const avatarUploadBtn = document.getElementById('avatarUploadBtn');
+            const avatarUploadInput = document.getElementById('avatarUploadInput');
+            
+            avatarUploadBtn.addEventListener('click', function() {
+                avatarUploadInput.click();
+            });
+            
+            avatarUploadInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    // Update all profile picture inputs
+                    profilePictureInput.files = this.files;
+                    
+                    // Trigger change event on profile picture input
+                    profilePictureInput.dispatchEvent(new Event('change'));
+                }
+            });
+            
+            // Remove picture button
+            const removePictureBtn = document.getElementById('removePictureBtn');
+            const removePictureInput = document.getElementById('removePictureInput');
+            
+            if (removePictureBtn) {
+                removePictureBtn.addEventListener('click', function() {
+                    if (confirm('Are you sure you want to remove your profile picture?')) {
+                        const defaultAvatar = 'https://randomuser.me/api/portraits/men/32.jpg';
+                        currentAvatar.src = defaultAvatar;
+                        profileAvatar.src = defaultAvatar;
+                        sidebarAvatar.src = defaultAvatar;
+                        profilePictureInput.value = '';
+                        removePictureInput.value = '1';
+                        removePictureBtn.disabled = true;
+                        removePictureBtn.innerHTML = '<i class="fas fa-check me-1"></i> Picture Removed';
+                        removePictureBtn.classList.remove('btn-outline-danger');
+                        removePictureBtn.classList.add('btn-outline-success');
+                    }
+                });
+            }
+            
+            // Form validation
+            const profileForm = document.getElementById('profileForm');
+            
+            profileForm.addEventListener('submit', function(e) {
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                const currentPassword = document.getElementById('currentPassword').value;
+                
+                // Check if password fields are being changed
+                if (newPassword || confirmPassword || currentPassword) {
+                    // All password fields must be filled
+                    if (!newPassword || !confirmPassword || !currentPassword) {
+                        e.preventDefault();
+                        alert('Please fill all password fields to change your password.');
+                        return false;
+                    }
+                    
+                    // Check if passwords match
+                    if (newPassword !== confirmPassword) {
+                        e.preventDefault();
+                        alert('New passwords do not match.');
+                        return false;
+                    }
+                    
+                    // Check password strength
+                    if (newPassword.length < 8) {
+                        e.preventDefault();
+                        alert('Password must be at least 8 characters long.');
+                        return false;
+                    }
+                    
+                    // Check for at least one number and one letter
+                    const hasNumber = /\d/.test(newPassword);
+                    const hasLetter = /[a-zA-Z]/.test(newPassword);
+                    
+                    if (!hasNumber || !hasLetter) {
+                        e.preventDefault();
+                        alert('Password must contain at least one number and one letter.');
+                        return false;
+                    }
+                }
+                
+                // Phone number validation
+                const phoneInput = document.querySelector('input[name="phone"]');
+                if (phoneInput.value && !/^\d{10}$/.test(phoneInput.value)) {
+                    e.preventDefault();
+                    alert('Please enter a valid 10-digit phone number.');
+                    return false;
+                }
+                
+                // Email validation
+                const emailInput = document.querySelector('input[name="email"]');
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(emailInput.value)) {
+                    e.preventDefault();
+                    alert('Please enter a valid email address.');
+                    return false;
+                }
+                
+                return true;
+            });
+        });
+        
+        // Toggle password visibility
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const toggleBtn = input.nextElementSibling;
+            const icon = toggleBtn.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - RepairShop Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+            /* Custom CSS for enhanced styling */
+    .card {
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    
+    .info-section {
+        background: white;
+        padding: 1.25rem;
+        border-radius: 10px;
+        border: 1px solid #eaeaea;
+    }
+    
+    .icon-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .bg-primary-light {
+        background-color: rgba(13, 110, 253, 0.1);
+    }
+    
+    .bg-success-light {
+        background-color: rgba(25, 135, 84, 0.1);
+    }
+    
+    .bg-warning-light {
+        background-color: rgba(255, 193, 7, 0.1);
+    }
+    
+    .bg-info-light {
+        background-color: rgba(13, 202, 240, 0.1);
+    }
+    
+    .bg-secondary-light {
+        background-color: rgba(108, 117, 125, 0.1);
+    }
+    
+    .problem-card {
+        border-left: 4px solid #ffc107;
+    }
+    
+    .timestamp-card {
+        border-left: 4px solid #6c757d;
+    }
+    
+    .info-item {
+        padding: 0.5rem 0;
+    }
+    
+    .badge {
+        font-weight: 500;
+    }
+    
+    .section-header h5 {
+        font-weight: 600;
+        color: #333;
+    }
+    
+    @media (max-width: 768px) {
+        .card-body {
+            padding: 1.5rem !important;
+        }
+        
+        .d-flex.justify-content-between {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .d-flex.justify-content-between > div {
+            width: 100%;
+        }
+        
+        .btn {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+    }
+     .card-body{
+        width:800px;
+        margin-left:245px;
+     }
+.repair-table-wrapper {
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.repair-table thead {
+    background: #0d6efd;
+    color: white;
+}
+
+.repair-table thead th {
+    padding: 14px;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+}
+
+.repair-table tbody tr {
+    transition: 0.2s ease;
+}
+
+.repair-table tbody tr:hover {
+    background: #f1f5ff !important;
+    transform: scale(1.01);
+    cursor: pointer;
+}
+
+.repair-table td {
+    padding: 14px 12px !important;
+    vertical-align: middle;
+}
+
+.action-btn {
+    border-radius: 50%;
+    padding: 6px 10px;
+}
+
+.action-btn i {
+    font-size: 14px;
+}
+
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f6fa;
+            color: #333;
+            overflow-x: hidden;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 250px;
+            background: linear-gradient(180deg, var(--primary-color) 0%, var(--dark-color) 100%);
+            color: white;
+            padding: 0;
+            z-index: 1000;
+            box-shadow: 3px 0 10px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            background: rgba(0,0,0,0.2);
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-header h3 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .sidebar-header p {
+            margin: 5px 0 0;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 15px 20px;
+            border-left: 4px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .nav-link:hover {
+            color: white;
+            background: rgba(255,255,255,0.1);
+            border-left: 4px solid var(--secondary-color);
+        }
+        
+        .nav-link.active {
+            color: white;
+            background: rgba(255,255,255,0.15);
+            border-left: 4px solid var(--secondary-color);
+        }
+        
+        .nav-link i {
+            width: 25px;
+            margin-right: 10px;
+            text-align: center;
+        }
+        
+        /* Main Content Styles */
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .top-navbar {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .welcome-text h4 {
+            margin: 0;
+            color: var(--primary-color);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+        
+        /* Stats Cards */
+        .stats-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border-left: 5px solid;
+            transition: transform 0.3s;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stats-card.total-enquiries {
+            border-left-color: var(--secondary-color);
+        }
+        
+        .stats-card.pending {
+            border-left-color: var(--warning-color);
+        }
+        
+        .stats-card.in-progress {
+            border-left-color: #9b59b6;
+        }
+        
+        .stats-card.completed {
+            border-left-color: var(--success-color);
+        }
+        
+        .stats-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            margin-bottom: 15px;
+        }
+        
+        .stats-icon.total {
+            background: linear-gradient(45deg, var(--secondary-color), #2980b9);
+        }
+        
+        .stats-icon.pending {
+            background: linear-gradient(45deg, var(--warning-color), #e67e22);
+        }
+        
+        .stats-icon.progress {
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+        }
+        
+        .stats-icon.completed {
+            background: linear-gradient(45deg, var(--success-color), #27ae60);
+        }
+        
+        .stats-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+        
+        .stats-title {
+            font-size: 0.9rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Section Headers */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 30px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .section-header h5 {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        /* Tables */
+        .data-table {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .table th {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            font-weight: 600;
+        }
+        
+        .table td {
+            vertical-align: middle;
+        }
+        
+        /* Badges */
+        .status-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .badge-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .badge-accepted {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .badge-in-progress {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .badge-completed {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .badge-rejected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .btn-action {
+            width: 35px;
+            height: 35px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            transition: all 0.3s;
+        }
+        
+        .btn-view {
+            background: var(--secondary-color);
+            color: white;
+        }
+        
+        .btn-edit {
+            background: var(--warning-color);
+            color: white;
+        }
+        
+        .btn-delete {
+            background: var(--danger-color);
+            color: white;
+        }
+        
+        .btn-action:hover {
+            transform: scale(1.1);
+        }
+        
+        /* Modal Styles */
+        .modal-header {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .quick-action-btn {
+            flex: 1;
+            min-width: 150px;
+            background: white;
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .quick-action-btn:hover {
+            border-color: var(--secondary-color);
+            background: #f8f9fa;
+            transform: translateY(-3px);
+        }
+        
+        .quick-action-btn i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--secondary-color);
+        }
+        
+        /* Footer */
+        .footer {
+            margin-top: 40px;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+                overflow: hidden;
+            }
+            
+            .sidebar:hover {
+                width: 250px;
+            }
+            
+            .main-content {
+                margin-left: 70px;
+            }
+            
+            .sidebar:hover + .main-content {
+                margin-left: 250px;
+            }
+            
+            .sidebar-header h3,
+            .nav-link span {
+                display: none;
+            }
+            
+            .sidebar:hover .sidebar-header h3,
+            .sidebar:hover .nav-link span {
+                display: block;
+            }
+            
+            .nav-link {
+                text-align: center;
+                padding: 15px 10px;
+            }
+            
+            .nav-link i {
+                margin-right: 0;
+                font-size: 1.2rem;
+            }
+            
+            .sidebar:hover .nav-link {
+                text-align: left;
+                padding: 15px 20px;
+            }
+            
+            .sidebar:hover .nav-link i {
+                margin-right: 10px;
+                font-size: 1rem;
+            }
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3><i class="fas fa-tools me-2"></i>RepairShop</h3>
+            <p>Admin Panel</p>
+        </div>
+        
+        <ul class="nav flex-column mt-4">
+            <li class="nav-item">
+                <a class="nav-link active" href="{% url 'admin_dashboard' %}" onclick="showSection('dashboard')">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="showSection('users')">
+                    <i class="fas fa-users"></i>
+                    <span>Manage Users</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'admin_repair_requests' %}" onclick="showSection('enquiries')">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Repair Enquiries</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="showSection('reports')">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Reports</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="showSection('settings')">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </li>
+            <li class="nav-item mt-4">
+                <a class="nav-link text-danger" href="{% url 'admin_logout' %}">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </li>
+        </ul>
+        
+        <div class="position-absolute bottom-0 start-0 w-100 p-3 text-center" style="background: rgba(0,0,0,0.2);">
+            <small>Logged in as: <strong>{{ request.user.username }}</strong></small>
+        </div>
+    </div>
+
+<h3 class="mb-4">
+    <i class="fas fa-eye"></i> Repair Request Details
+</h3>
+
+{% comment %} <div class="card shadow-sm">
+    <div class="card-body">
+
+        <h5 class="mb-3">Request #{{ repair.id|stringformat:"04d" }}</h5>
+
+        <h6 class="text-secondary mt-3">User Information</h6>
+        <hr>
+        <p><strong>Name:</strong> {{ repair.user.first_name }} {{ repair.user.last_name }}</p>
+        <p><strong>Username:</strong> {{ repair.user.username }}</p>
+        <p><strong>Email:</strong> {{ repair.user.email }}</p>
+
+        <h6 class="text-secondary mt-4">Device Information</h6>
+        <hr>
+        <p><strong>Device Type:</strong> {{ repair.device_type }}</p>
+        <p><strong>Brand:</strong> {{ repair.device_brand }}</p>
+        <p><strong>Model:</strong> {{ repair.device_model }}</p>
+
+        <h6 class="text-secondary mt-4">Problem Description</h6>
+        <hr>
+        <p>{{ repair.problem_description }}</p>
+
+        <h6 class="text-secondary mt-4">Status</h6>
+        <hr>
+        {% if repair.status == 'pending' %}
+            <span class="badge bg-warning">Pending</span>
+        {% elif repair.status == 'in_progress' %}
+            <span class="badge bg-info">In Progress</span>
+        {% elif repair.status == 'completed' %}
+            <span class="badge bg-success">Completed</span>
+        {% else %}
+            <span class="badge bg-secondary">Cancelled</span>
+        {% endif %}
+
+        <h6 class="text-secondary mt-4">Submitted On</h6>
+        <hr>
+        <p>{{ repair.created_at|date:"d M Y, h:i A" }}</p>
+
+        <a href="{% url 'admin_repair_requests' %}" class="btn btn-secondary mt-4">
+            <i class="fas fa-arrow-left"></i> Back to List
+        </a>
+    </div>
+</div> {% endcomment %}
+<div class="card shadow-lg border-0">
+    <div class="card-body p-4">
+
+        <!-- Header Section -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h4 class="mb-0 text-primary fw-bold">Repair Request Details</h4>
+                <p class="text-muted mb-0">#{{ repair.id|stringformat:"04d" }}</p>
+            </div>
+            <div class="badge bg-light text-dark p-2 border">
+                <i class="fas fa-tools me-1"></i> Repair ID: {{ repair.id|stringformat:"04d" }}
+            </div>
+        </div>
+
+        <!-- User Information -->
+        <div class="info-section mb-4">
+            <div class="section-header d-flex align-items-center mb-3">
+                <div class="icon-circle bg-primary-light me-3">
+                    <i class="fas fa-user text-primary"></i>
+                </div>
+                <h5 class="mb-0">User Information</h5>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="info-item mb-3">
+                        <label class="text-muted small mb-1">Full Name</label>
+                        <p class="mb-0 fw-medium">{{ repair.user.first_name }} {{ repair.user.last_name }}</p>
+                    </div>
+                    <div class="info-item mb-3">
+                        <label class="text-muted small mb-1">Email Address</label>
+                        <p class="mb-0">
+                            <i class="fas fa-envelope me-2 text-muted"></i>
+                            {{ repair.user.email }}
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="info-item mb-3">
+                        <label class="text-muted small mb-1">Username</label>
+                        <p class="mb-0">
+                            <i class="fas fa-at me-2 text-muted"></i>
+                            {{ repair.user.username }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Device Information -->
+        <div class="info-section mb-4">
+            <div class="section-header d-flex align-items-center mb-3">
+                <div class="icon-circle bg-success-light me-3">
+                    <i class="fas fa-laptop text-success"></i>
+                </div>
+                <h5 class="mb-0">Device Information</h5>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="info-item mb-3">
+                        <label class="text-muted small mb-1">Device Type</label>
+                        <p class="mb-0">
+                            <i class="fas fa-mobile-alt me-2 text-muted"></i>
+                            {{ repair.device_type }}
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="info-item mb-3">
+                        <label class="text-muted small mb-1">Brand</label>
+                        <p class="mb-0">
+                            <i class="fas fa-tag me-2 text-muted"></i>
+                            {{ repair.device_brand }}
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="info-item mb-3">
+                        <label class="text-muted small mb-1">Model</label>
+                        <p class="mb-0">
+                            <i class="fas fa-microchip me-2 text-muted"></i>
+                            {{ repair.device_model }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Problem Description -->
+        <div class="info-section mb-4">
+            <div class="section-header d-flex align-items-center mb-3">
+                <div class="icon-circle bg-warning-light me-3">
+                    <i class="fas fa-exclamation-triangle text-warning"></i>
+                </div>
+                <h5 class="mb-0">Problem Description</h5>
+            </div>
+            <div class="problem-card p-3 bg-light rounded">
+                <p class="mb-0">{{ repair.problem_description }}</p>
+            </div>
+        </div>
+
+        <!-- Status & Timestamp -->
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="info-section h-100">
+                    <div class="section-header d-flex align-items-center mb-3">
+                        <div class="icon-circle bg-info-light me-3">
+                            <i class="fas fa-chart-line text-info"></i>
+                        </div>
+                        <h5 class="mb-0">Status</h5>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        {% if repair.status == 'pending' %}
+                            <span class="badge bg-warning-subtle text-warning-emphasis px-3 py-2 rounded-pill fs-6">
+                                <i class="fas fa-clock me-1"></i> Pending
+                            </span>
+                        {% elif repair.status == 'in_progress' %}
+                            <span class="badge bg-info-subtle text-info-emphasis px-3 py-2 rounded-pill fs-6">
+                                <i class="fas fa-spinner fa-spin me-1"></i> In Progress
+                            </span>
+                        {% elif repair.status == 'completed' %}
+                            <span class="badge bg-success-subtle text-success-emphasis px-3 py-2 rounded-pill fs-6">
+                                <i class="fas fa-check-circle me-1"></i> Completed
+                            </span>
+                        {% else %}
+                            <span class="badge bg-secondary-subtle text-secondary-emphasis px-3 py-2 rounded-pill fs-6">
+                                <i class="fas fa-times-circle me-1"></i> Cancelled
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="info-section h-100">
+                    <div class="section-header d-flex align-items-center mb-3">
+                        <div class="icon-circle bg-secondary-light me-3">
+                            <i class="fas fa-calendar-alt text-secondary"></i>
+                        </div>
+                        <h5 class="mb-0">Submitted On</h5>
+                    </div>
+                    <div class="timestamp-card p-3 bg-light rounded">
+                        <p class="mb-0">
+                            <i class="far fa-calendar me-2"></i>
+                            {{ repair.created_at|date:"d M Y" }}
+                        </p>
+                        <p class="mb-0 text-muted small">
+                            <i class="far fa-clock me-2"></i>
+                            {{ repair.created_at|date:"h:i A" }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top">
+            <a href="{% url 'admin_repair_requests' %}" class="btn btn-outline-secondary px-4">
+                <i class="fas fa-arrow-left me-2"></i> Back to List
+            </a>
+            <div>
+                <button class="btn btn-outline-primary me-2">
+                    <i class="fas fa-print me-1"></i> Print
+                </button>
+                {% comment %} <button class="btn btn-primary">
+                    <i class="fas fa-edit me-1"></i> Update Status
+                </button> {% endcomment %}
+                <form method="POST" action="{% url 'admin_update_repair_status' repair.id %}" class="d-inline">
+    {% csrf_token %}
+    <select name="status" class="form-select d-inline w-auto me-2">
+        <option value="pending" {% if repair.status == 'pending' %}selected{% endif %}>Pending</option>
+        <option value="in_progress" {% if repair.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+        <option value="completed" {% if repair.status == 'completed' %}selected{% endif %}>Completed</option>
+        <option value="cancelled" {% if repair.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+    </select>
+    <button type="submit" class="btn btn-primary">
+        <i class="fas fa-edit me-1"></i> Update Status
+    </button>
+</form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+    </body>
+</html>

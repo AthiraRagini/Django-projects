@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports & Analytics | RepairShop Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #8b5cf6;
+            --dark: #1f2937;
+            --light: #f9fafb;
+            --gray: #6b7280;
+            --gray-light: #e5e7eb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            min-height: 100vh;
+            color: var(--dark);
+        }
+
+        /* Sidebar (same as before - keep your existing sidebar styles) */
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(180deg, var(--dark) 0%, #111827 100%);
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            z-index: 1000;
+            padding: 0;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .logo-text h3 {
+            margin: 0;
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, #d1d5db 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-text p {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin: 4px 0 0;
+            font-weight: 300;
+        }
+
+        .nav-menu {
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            padding: 0 15px;
+            margin: 5px 0;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 0.95rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: linear-gradient(180deg, var(--primary) 0%, var(--primary-dark) 100%);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding-left: 22px;
+        }
+
+        .nav-link:hover::before {
+            transform: translateX(0);
+        }
+
+        .nav-link.active {
+            background: rgba(59, 130, 246, 0.2);
+            color: white;
+            padding-left: 22px;
+        }
+
+        .nav-link.active::before {
+            transform: translateX(0);
+        }
+
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 260px;
+            padding: 30px;
+            min-height: 100vh;
+        }
+
+        /* Page Header */
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .header-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 16px;
+            padding: 25px 30px;
+            color: white;
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .page-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .title-icon {
+            width: 55px;
+            height: 55px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .title-text h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .title-text p {
+            opacity: 0.9;
+            margin: 5px 0 0;
+            font-size: 0.95rem;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .stat-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        /* Period Selector */
+        .period-selector {
+            margin-bottom: 30px;
+        }
+
+        .period-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--gray-light);
+        }
+
+        .period-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .period-header h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .period-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .period-btn {
+            padding: 10px 20px;
+            border: 2px solid var(--gray-light);
+            background: white;
+            border-radius: 10px;
+            font-weight: 500;
+            color: var(--gray);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .period-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .period-btn.active {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        /* Charts Container */
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--gray-light);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-header h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--gray-light);
+        }
+
+        .stat-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card-header i {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .stat-card-header h4 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .stat-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            font-size: 0.95rem;
+            color: var(--gray);
+        }
+
+        .stat-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .progress-container {
+            margin-top: 5px;
+        }
+
+        .progress {
+            height: 8px;
+            border-radius: 4px;
+            background: var(--gray-light);
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+
+        /* Export Section */
+        .export-section {
+            margin-bottom: 30px;
+        }
+
+        .export-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--gray-light);
+        }
+
+        .export-header {
+            margin-bottom: 20px;
+        }
+
+        .export-header h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .export-btn {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px 25px;
+            border: 2px solid var(--gray-light);
+            background: white;
+            border-radius: 12px;
+            font-weight: 600;
+            color: var(--dark);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .export-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .export-btn.pdf {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .export-btn.pdf:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .export-btn.excel {
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .export-btn.excel:hover {
+            background: var(--success);
+            color: white;
+        }
+
+        .export-btn.csv {
+            border-color: var(--info);
+            color: var(--info);
+        }
+
+        .export-btn.csv:hover {
+            background: var(--info);
+            color: white;
+        }
+
+        /* Report Summary */
+        .summary-section {
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--gray-light);
+        }
+
+        .summary-header {
+            margin-bottom: 25px;
+        }
+
+        .summary-header h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .summary-content {
+            line-height: 1.8;
+            color: var(--gray);
+        }
+
+        .summary-content p {
+            margin-bottom: 15px;
+        }
+
+        .highlight {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .sidebar {
+                width: 240px;
+            }
+            .main-content {
+                margin-left: 240px;
+                padding: 25px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 220px;
+            }
+            .main-content {
+                margin-left: 220px;
+                padding: 20px;
+            }
+            .header-card {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+            .header-stats {
+                justify-content: center;
+            }
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+            .chart-card {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            .menu-toggle {
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                z-index: 1001;
+                background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+                color: white;
+                width: 50px;
+                height: 50px;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.3rem;
+                cursor: pointer;
+                box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 15px;
+            }
+            .header-card {
+                padding: 20px;
+            }
+            .title-text h1 {
+                font-size: 1.5rem;
+            }
+            .stat-badge {
+                min-width: 80px;
+                padding: 8px 15px;
+            }
+            .period-buttons {
+                flex-direction: column;
+            }
+            .export-buttons {
+                flex-direction: column;
+            }
+            .export-btn {
+                min-width: 100%;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chart-card, .stat-card, .export-card, .summary-card {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--gray) 0%, #4b5563 100%);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Mobile Menu Toggle -->
+    <div class="menu-toggle" onclick="toggleSidebar()" style="display: none;">
+        <i class="fas fa-bars"></i>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-tools"></i>
+                </div>
+                <div class="logo-text">
+                    <h3>RepairShop Pro</h3>
+                    <p>Admin Dashboard</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-menu">
+            <div class="nav-item">
+                <a href="{% url 'admin_dashboard' %}" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    <span>Manage Users</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'admin_repair_requests' %}" class="nav-link">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Repair Requests</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'admin_reports' %}" class="nav-link active">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Reports</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </div>
+            <div class="nav-item mt-auto">
+                <a href="{% url 'admin_logout' %}" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="header-card">
+                <div class="page-title">
+                    <div class="title-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <div class="title-text">
+                        <h1>Reports & Analytics</h1>
+                        <p>Comprehensive insights and performance metrics</p>
+                    </div>
+                </div>
+                <div class="header-stats">
+                    <div class="stat-badge">
+                        <div class="stat-value">{{ total_repairs }}</div>
+                        <div class="stat-label">Total Repairs</div>
+                    </div>
+                    <div class="stat-badge">
+                        <div class="stat-value">{{ total_users }}</div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+                    <div class="stat-badge">
+                        <div class="stat-value">{{ avg_completion_days }}</div>
+                        <div class="stat-label">Avg. Days</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Period Selector -->
+        <div class="period-selector">
+            <div class="period-card">
+                <div class="period-header">
+                    <h3><i class="fas fa-calendar-alt"></i> Select Time Period</h3>
+                    <div class="period-buttons">
+                        <a href="?period=daily" class="period-btn {% if period == 'daily' %}active{% endif %}">
+                            <i class="fas fa-calendar-day"></i> Daily
+                        </a>
+                        <a href="?period=weekly" class="period-btn {% if period == 'weekly' %}active{% endif %}">
+                            <i class="fas fa-calendar-week"></i> Weekly
+                        </a>
+                        <a href="?period=monthly" class="period-btn {% if period == 'monthly' %}active{% endif %}">
+                            <i class="fas fa-calendar"></i> Monthly
+                        </a>
+                        <a href="?period=yearly" class="period-btn {% if period == 'yearly' %}active{% endif %}">
+                            <i class="fas fa-calendar-year"></i> Yearly
+                        </a>
+                    </div>
+                </div>
+                <p class="text-muted mb-0">
+                    <i class="fas fa-info-circle"></i> Showing data for: <strong>{{ chart_data.title }}</strong>
+                </p>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-container">
+            <!-- Main Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3><i class="fas fa-chart-line"></i> {{ chart_data.title }}</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="mainChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Status Distribution Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3><i class="fas fa-chart-pie"></i> Status Distribution</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Trend Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3><i class="fas fa-trend-up"></i> Monthly Trend</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Device Analysis Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3><i class="fas fa-laptop"></i> Device Type Analysis</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="deviceChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Grid -->
+        <div class="stats-grid">
+            <!-- Device Types -->
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <i class="fas fa-mobile-alt"></i>
+                    <h4>Top Device Types</h4>
+                </div>
+                <ul class="stat-list">
+                    {% for device in device_analysis %}
+                    <li class="stat-item">
+                        <span class="stat-label">{{ device.device_type }}</span>
+                        <span class="stat-value">{{ device.count }}</span>
+                    </li>
+                    {% empty %}
+                    <li class="stat-item">
+                        <span class="stat-label">No device data</span>
+                        <span class="stat-value">0</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Problem Types -->
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <i class="fas fa-bug"></i>
+                    <h4>Common Problems</h4>
+                </div>
+                <ul class="stat-list">
+                    {% for problem in problem_analysis %}
+                    <li class="stat-item">
+                        <div>
+                            <span class="stat-label">{{ problem.name }}</span>
+                            <div class="progress-container">
+                                <div class="progress">
+                                    <div class="progress-bar" style="width: {{ problem.percentage }}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="stat-value">{{ problem.count }} ({{ problem.percentage }}%)</span>
+                    </li>
+                    {% empty %}
+                    <li class="stat-item">
+                        <span class="stat-label">No problem data</span>
+                        <span class="stat-value">0</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Top Users -->
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <i class="fas fa-users"></i>
+                    <h4>Top Users by Repairs</h4>
+                </div>
+                <ul class="stat-list">
+                    {% for user in top_users %}
+                    <li class="stat-item">
+                        <span class="stat-label">{{ user.username }}</span>
+                        <span class="stat-value">{{ user.repair_count }} repairs</span>
+                    </li>
+                    {% empty %}
+                    <li class="stat-item">
+                        <span class="stat-label">No user data</span>
+                        <span class="stat-value">0</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Service Types -->
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <i class="fas fa-cogs"></i>
+                    <h4>Service Types</h4>
+                </div>
+                <ul class="stat-list">
+                    {% for service in service_analysis %}
+                    <li class="stat-item">
+                        <span class="stat-label">{{ service.service_type }}</span>
+                        <span class="stat-value">{{ service.count }}</span>
+                    </li>
+                    {% empty %}
+                    <li class="stat-item">
+                        <span class="stat-label">No service data</span>
+                        <span class="stat-value">0</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Urgency Levels -->
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h4>Urgency Levels</h4>
+                </div>
+                <ul class="stat-list">
+                    {% for urgency in urgency_analysis %}
+                    <li class="stat-item">
+                        <span class="stat-label">{{ urgency.urgency_level|title }}</span>
+                        <span class="stat-value">{{ urgency.count }}</span>
+                    </li>
+                    {% empty %}
+                    <li class="stat-item">
+                        <span class="stat-label">No urgency data</span>
+                        <span class="stat-value">0</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Revenue Stats (if available) -->
+            {% if revenue_data.total_revenue > 0 %}
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <i class="fas fa-dollar-sign"></i>
+                    <h4>Revenue Statistics</h4>
+                </div>
+                <ul class="stat-list">
+                    <li class="stat-item">
+                        <span class="stat-label">Total Revenue</span>
+                        <span class="stat-value">₹{{ revenue_data.total_revenue|floatformat:2 }}</span>
+                    </li>
+                    <li class="stat-item">
+                        <span class="stat-label">Average per Repair</span>
+                        <span class="stat-value">₹{{ revenue_data.avg_revenue|floatformat:2 }}</span>
+                    </li>
+                    <li class="stat-item">
+                        <span class="stat-label">Completed Repairs</span>
+                        <span class="stat-value">{{ completed_count }}</span>
+                    </li>
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Report Summary -->
+        <div class="summary-section">
+            <div class="summary-card">
+                <div class="summary-header">
+                    <h3><i class="fas fa-file-alt"></i> Report Summary</h3>
+                </div>
+                <div class="summary-content">
+                    <p>
+                        This report provides comprehensive analytics for <span class="highlight">{{ chart_data.title|lower }}</span>. 
+                        As of <span class="highlight">{{ report_date }}</span>, the system has processed a total of 
+                        <span class="highlight">{{ total_repairs }}</span> repair requests from 
+                        <span class="highlight">{{ total_users }}</span> registered users.
+                    </p>
+                    
+                    {% if avg_completion_days > 0 %}
+                    <p>
+                        The average completion time for repairs is 
+                        <span class="highlight">{{ avg_completion_days }}</span> days. 
+                        Most common device issues involve 
+                        <span class="highlight">
+                            {% if problem_analysis %}
+                                {{ problem_analysis.0.name }}, {{ problem_analysis.1.name }}
+                            {% else %}
+                                hardware and software
+                            {% endif %}
+                        </span> problems.
+                    </p>
+                    {% endif %}
+                    
+                    <p>
+                        The system performance metrics indicate 
+                        <span class="highlight">stable operation</span> with consistent request volumes 
+                        across all time periods. Key areas for optimization include reducing 
+                        <span class="highlight">pending request backlog</span> and improving 
+                        <span class="highlight">customer response times</span>.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Export Section -->
+        {% comment %} <div class="export-section">
+            <div class="export-card">
+                <div class="export-header">
+                    <h3><i class="fas fa-download"></i> Export Reports</h3>
+                </div>
+                <div class="export-buttons">
+                    <button class="export-btn pdf" onclick="exportReport('pdf')">
+                        <i class="fas fa-file-pdf"></i> Export as PDF
+                    </button>
+                    <button class="export-btn excel" onclick="exportReport('excel')">
+                        <i class="fas fa-file-excel"></i> Export as Excel
+                    </button>
+                    <button class="export-btn csv" onclick="exportReport('csv')">
+                        <i class="fas fa-file-csv"></i> Export as CSV
+                    </button>
+                </div>
+            </div>
+        </div> {% endcomment %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <script>
+        // Toggle sidebar
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+        }
+
+        // Initialize Charts
+        document.addEventListener('DOMContentLoaded', function() {
+            // Parse JSON data from Django
+            const chartData = JSON.parse('{{ chart_data_json|escapejs }}');
+            const monthlyTrend = JSON.parse('{{ monthly_trend_json|escapejs }}');
+            const statusCounts = JSON.parse('{{ status_counts_json|escapejs }}');
+            const deviceAnalysis = JSON.parse('{{ device_analysis_json|escapejs }}');
+            
+            // Color palette
+            const colors = {
+                primary: '#3b82f6',
+                primaryDark: '#2563eb',
+                success: '#10b981',
+                warning: '#f59e0b',
+                danger: '#ef4444',
+                info: '#8b5cf6',
+                gray: '#6b7280'
+            };
+
+            // 1. Main Chart (Bar Chart)
+            const mainCtx = document.getElementById('mainChart').getContext('2d');
+            new Chart(mainCtx, {
+                type: 'bar',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        label: 'Repair Requests',
+                        data: chartData.data,
+                        backgroundColor: chartData.data.map((_, i) => 
+                            `rgba(59, 130, 246, ${0.7 + (i * 0.05)})`
+                        ),
+                        borderColor: colors.primaryDark,
+                        borderWidth: 2,
+                        borderRadius: 6,
+                        hoverBackgroundColor: colors.primaryDark,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Requests: ${context.raw}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                drawBorder: false
+                            },
+                            ticks: {
+                                stepSize: 1
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 2. Status Distribution Chart (Doughnut)
+            const statusCtx = document.getElementById('statusChart').getContext('2d');
+            
+            // Prepare status data
+            const statusLabels = statusCounts.map(item => {
+                // Convert status to readable format
+                const statusMap = {
+                    'pending': 'Pending',
+                    'in_progress': 'In Progress',
+                    'completed': 'Completed',
+                    'cancelled': 'Cancelled'
+                };
+                return statusMap[item.status] || item.status;
+            });
+            
+            const statusData = statusCounts.map(item => item.count);
+            const statusColors = statusCounts.map(item => {
+                const colorMap = {
+                    'pending': colors.warning,
+                    'in_progress': colors.primary,
+                    'completed': colors.success,
+                    'cancelled': colors.danger
+                };
+                return colorMap[item.status] || colors.gray;
+            });
+            
+            new Chart(statusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: statusLabels,
+                    datasets: [{
+                        data: statusData,
+                        backgroundColor: statusColors,
+                        borderWidth: 2,
+                        borderColor: 'white',
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '60%',
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((context.raw / total) * 100);
+                                    return `${context.label}: ${context.raw} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 3. Trend Chart (Line Chart)
+            const trendCtx = document.getElementById('trendChart').getContext('2d');
+            const trendLabels = monthlyTrend.map(item => item.month);
+            const pendingData = monthlyTrend.map(item => item.pending);
+            const completedData = monthlyTrend.map(item => item.completed);
+            
+            new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: trendLabels,
+                    datasets: [
+                        {
+                            label: 'Pending',
+                            data: pendingData,
+                            borderColor: colors.warning,
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Completed',
+                            data: completedData,
+                            borderColor: colors.success,
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                drawBorder: false
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 4. Device Analysis Chart (Horizontal Bar)
+            const deviceCtx = document.getElementById('deviceChart').getContext('2d');
+            const deviceLabels = deviceAnalysis.map(item => item.device_type);
+            const deviceData = deviceAnalysis.map(item => item.count);
+            
+            new Chart(deviceCtx, {
+                type: 'bar',
+                data: {
+                    labels: deviceLabels,
+                    datasets: [{
+                        label: 'Count',
+                        data: deviceData,
+                        backgroundColor: deviceData.map((_, i) => 
+                            `rgba(139, 92, 246, ${0.7 + (i * 0.05)})`
+                        ),
+                        borderColor: '#7c3aed',
+                        borderWidth: 2,
+                        borderRadius: 6,
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: {
+                                drawBorder: false
+                            }
+                        },
+                        y: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Show mobile menu toggle on small screens
+            if (window.innerWidth <= 768) {
+                document.querySelector('.menu-toggle').style.display = 'flex';
+            }
+
+            // Animate progress bars
+            document.querySelectorAll('.progress-bar').forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 500);
+            });
+        });
+
+        // Export Report Function
+        function exportReport(format) {
+            const period = '{{ period }}';
+            const date = new Date().toISOString().split('T')[0];
+            let filename = `repairshop-report-${period}-${date}`;
+            
+            switch(format) {
+                case 'pdf':
+                    alert(`PDF report "${filename}.pdf" would be generated.`);
+                    // In production: window.location.href = `/reports/export/pdf/?period=${period}`;
+                    break;
+                case 'excel':
+                    alert(`Excel report "${filename}.xlsx" would be generated.`);
+                    // In production: window.location.href = `/reports/export/excel/?period=${period}`;
+                    break;
+                case 'csv':
+                    alert(`CSV report "${filename}.csv" would be generated.`);
+                    // In production: window.location.href = `/reports/export/csv/?period=${period}`;
+                    break;
+            }
+            
+            // Add download animation
+            const btn = event.target.closest('.export-btn');
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Generating...`;
+            setTimeout(() => {
+                btn.innerHTML = btn.innerHTML.replace('fa-spinner fa-spin', 'fa-check');
+                setTimeout(() => {
+                    const iconClass = format === 'pdf' ? 'fa-file-pdf' : 
+                                    format === 'excel' ? 'fa-file-excel' : 'fa-file-csv';
+                    btn.innerHTML = `<i class="fas ${iconClass}"></i> Export as ${format.toUpperCase()}`;
+                }, 1500);
+            }, 2000);
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                document.querySelector('.menu-toggle').style.display = 'none';
+                document.querySelector('.sidebar').classList.remove('active');
+            } else {
+                document.querySelector('.menu-toggle').style.display = 'flex';
+            }
+        });
+    </script>
+</body>
+</html>

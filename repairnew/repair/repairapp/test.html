@@ -1,0 +1,562 @@
+# repair_app/views.py
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.contrib.auth.models import User
+from django.http import JsonResponse
+from django.utils import timezone
+import json
+from .models import *
+from .forms import *
+
+# ====================
+# NEW REPAIR REQUEST VIEWS
+# ====================
+
+@login_required
+def submit_repair_request_view(request):
+    """Submit a new repair request"""
+    if request.method == 'POST':
+        form = RepairRequestForm(request.POST, request.FILES)
+        
+        if form.is_valid():
+            try:
+                # Save repair request
+                repair = form.save(commit=False)
+                repair.user = request.user
+                repair.status = 'pending'
+                repair.save()
+                
+                # Handle file uploads
+                files = request.FILES.getlist('attachments')
+                for file in files:
+                    RepairAttachment.objects.create(
+                        repair=repair,
+                        file=file,
+                        file_name=file.name
+                    )
+                
+                # Create notification
+                Notification.objects.create(
+                    user=request.user,
+                    title='Repair Request Submitted',
+                    message=f'Your repair request #{repair.id} has been submitted successfully.',
+                    notification_type='repair_submitted'
+                )
+                
+                messages.success(request, 'Repair request submitted successfully!')
+                return redirect('repair_detail', repair_id=repair.id)
+                
+            except Exception as e:
+                messages.error(request, f'Error submitting repair request: {str(e)}')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        # Set default values
+        initial_data = {}
+        if request.GET.get('device_type'):
+            initial_data['device_type'] = request.GET.get('device_type')
+        
+        form = RepairRequestForm(initial=initial_data)
+    
+    context = {
+        'form': form,
+        'title': 'New Repair Request',
+        'device_types': RepairRequest.DEVICE_TYPES,
+        'problem_categories': PROBLEM_CATEGORIES,
+        'service_types': SERVICE_TYPES,
+    }
+    return render(request, 'user_new_repair.html', context)
+
+@login_required
+def my_repairs_view(request):
+    """View all repairs by the user"""
+    repairs = RepairRequest.objects.filter(user=request.user).order_by('-created_at')
+    
+    # Filter by status if provided
+    status_filter = request.GET.get('status')
+    if status_filter:
+        repairs = repairs.filter(status=status_filter)
+    
+    # Search functionality
+    search_query = request.GET.get('search', '')
+    if search_query:
+        repairs = repairs.filter(
+            Q(device_brand__icontains=search_query) |
+            Q(device_model__icontains=search_query) |
+            Q(problem_description__icontains=search_query)
+        )
+    
+    context = {
+        'repairs': repairs,
+        'status_filter': status_filter,
+        'search_query': search_query,
+        'repair_statuses': RepairRequest.STATUS_CHOICES,
+    }
+    return render(request, 'user_my_repairs.html', context)
+
+@login_required
+def repair_detail_view(request, repair_id):
+    """View details of a specific repair"""
+    repair = get_object_or_404(RepairRequest, id=repair_id, user=request.user)
+    attachments = RepairAttachment.objects.filter(repair=repair)
+    updates = RepairUpdate.objects.filter(repair=repair).order_by('-created_at')
+    
+    if request.method == 'POST' and request.POST.get('action') == 'add_comment':
+        comment_form = RepairCommentForm(request.POST)
+        if comment_form.is_valid():
+            comment = comment_form.save(commit=False)
+            comment.repair = repair
+            comment.user = request.user
+            comment.save()
+            messages.success(request, 'Comment added successfully.')
+            return redirect('repair_detail', repair_id=repair_id)
+    else:
+        comment_form = RepairCommentForm()
+    
+    context = {
+        'repair': repair,
+        'attachments': attachments,
+        'updates': updates,
+        'comment_form': comment_form,
+        'can_update': repair.status in ['pending', 'in_progress'],
+    }
+    return render(request, 'user_repair_detail.html', context)
+
+@login_required
+def update_repair_request_view(request, repair_id):
+    """Update an existing repair request"""
+    repair = get_object_or_404(RepairRequest, id=repair_id, user=request.user)
+    
+    # Only allow updates for pending or in_progress repairs
+    if repair.status not in ['pending', 'in_progress']:
+        messages.error(request, 'Cannot update a completed or cancelled repair.')
+        return redirect('repair_detail', repair_id=repair_id)
+    
+    if request.method == 'POST':
+        form = RepairRequestForm(request.POST, request.FILES, instance=repair)
+        if form.is_valid():
+            updated_repair = form.save()
+            
+            # Create update record
+            RepairUpdate.objects.create(
+                repair=updated_repair,
+                title='Repair Details Updated',
+                description=f'{request.user.username} updated the repair details.',
+                update_type='user_update'
+            )
+            
+            messages.success(request, 'Repair request updated successfully!')
+            return redirect('repair_detail', repair_id=repair_id)
+    else:
+        form = RepairRequestForm(instance=repair)
+    
+    context = {
+        'form': form,
+        'repair': repair,
+        'title': f'Update Repair #{repair_id}',
+    }
+    return render(request, 'user_update_repair.html', context)
+
+@login_required
+def delete_repair_request_view(request, repair_id):
+    """Delete a repair request (soft delete)"""
+    repair = get_object_or_404(RepairRequest, id=repair_id, user=request.user)
+    
+    if repair.status not in ['pending', 'cancelled']:
+        messages.error(request, 'Cannot delete a repair that is in progress or completed.')
+        return redirect('repair_detail', repair_id=repair_id)
+    
+    if request.method == 'POST':
+        repair.delete()
+        messages.success(request, 'Repair request deleted successfully.')
+        return redirect('my_repairs')
+    
+    return render(request, 'user_confirm_delete.html', {'repair': repair})
+
+# ====================
+# FILE UPLOAD VIEWS
+# ====================
+
+@login_required
+def upload_file_view(request):
+    """Handle file uploads for repair requests"""
+    if request.method == 'POST' and request.FILES.get('file'):
+        try:
+            file = request.FILES['file']
+            repair_id = request.POST.get('repair_id')
+            
+            # Validate file size (10MB max)
+            if file.size > 10 * 1024 * 1024:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'File size exceeds 10MB limit'
+                })
+            
+            # Validate file type
+            allowed_types = ['image/jpeg', 'image/png', 'image/gif', 
+                           'application/pdf', 'application/msword',
+                           'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+            if file.content_type not in allowed_types:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'File type not supported'
+                })
+            
+            if repair_id:
+                repair = get_object_or_404(RepairRequest, id=repair_id, user=request.user)
+                attachment = RepairAttachment.objects.create(
+                    repair=repair,
+                    file=file,
+                    file_name=file.name,
+                    file_size=file.size,
+                    file_type=file.content_type
+                )
+                
+                return JsonResponse({
+                    'success': True,
+                    'file_id': attachment.id,
+                    'file_name': file.name,
+                    'file_url': attachment.file.url,
+                    'file_size': attachment.get_file_size_display(),
+                })
+            else:
+                # Save to temporary storage
+                temp_file = TempUploadedFile.objects.create(
+                    user=request.user,
+                    file=file,
+                    file_name=file.name
+                )
+                
+                return JsonResponse({
+                    'success': True,
+                    'temp_id': temp_file.id,
+                    'file_name': file.name,
+                })
+                
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            })
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request'})
+
+@login_required
+def delete_file_view(request, file_id):
+    """Delete an uploaded file"""
+    try:
+        attachment = get_object_or_404(RepairAttachment, id=file_id)
+        
+        # Check permission
+        if attachment.repair.user != request.user:
+            return JsonResponse({
+                'success': False,
+                'error': 'Permission denied'
+            })
+        
+        attachment.delete()
+        return JsonResponse({'success': True})
+        
+    except RepairAttachment.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'File not found'
+        })
+
+# ====================
+# API VIEWS
+# ====================
+
+def get_device_brands_api(request):
+    """API endpoint to get device brands"""
+    brands = [
+        'Apple', 'Dell', 'HP', 'Lenovo', 'Asus', 'Acer', 'Microsoft',
+        'Samsung', 'Sony', 'Toshiba', 'MSI', 'Alienware', 'Razer',
+        'Google', 'Huawei', 'Xiaomi', 'OnePlus', 'LG', 'Nokia'
+    ]
+    return JsonResponse({'brands': brands})
+
+def get_device_models_api(request, brand):
+    """API endpoint to get device models by brand"""
+    models_by_brand = {
+        'Apple': ['MacBook Air', 'MacBook Pro', 'iMac', 'Mac Mini', 'iPhone', 'iPad'],
+        'Dell': ['XPS 13', 'XPS 15', 'Inspiron', 'Latitude', 'Alienware'],
+        'HP': ['Spectre', 'Envy', 'Pavilion', 'Omen', 'EliteBook'],
+        'Lenovo': ['ThinkPad', 'Yoga', 'IdeaPad', 'Legion'],
+        'Asus': ['ZenBook', 'ROG', 'VivoBook', 'TUF'],
+        'Samsung': ['Galaxy Book', 'Galaxy Tab', 'Galaxy S series', 'Galaxy Note'],
+    }
+    
+    models = models_by_brand.get(brand, ['Select model'])
+    return JsonResponse({'models': models})
+
+def estimate_repair_cost_api(request):
+    """API endpoint for cost estimation"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            device_type = data.get('device_type')
+            problem_categories = data.get('problem_categories', [])
+            
+            # Simple cost estimation logic
+            base_costs = {
+                'laptop': 50,
+                'desktop': 40,
+                'tablet': 60,
+                'smartphone': 70,
+                'printer': 30,
+                'monitor': 35,
+                'other': 45,
+            }
+            
+            problem_multipliers = {
+                'hardware': 1.5,
+                'screen': 2.0,
+                'battery': 1.3,
+                'motherboard': 2.5,
+                'software': 1.2,
+                'virus': 1.1,
+            }
+            
+            base_cost = base_costs.get(device_type, 50)
+            total_multiplier = 1.0
+            
+            for category in problem_categories:
+                total_multiplier *= problem_multipliers.get(category, 1.0)
+            
+            estimated_cost = base_cost * total_multiplier
+            
+            return JsonResponse({
+                'success': True,
+                'estimated_cost': round(estimated_cost, 2),
+                'currency': 'USD',
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            })
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+# ====================
+# ADDITIONAL USER VIEWS
+# ====================
+
+@login_required
+def help_support_view(request):
+    """Help and support page"""
+    if request.method == 'POST':
+        form = SupportTicketForm(request.POST)
+        if form.is_valid():
+            ticket = form.save(commit=False)
+            ticket.user = request.user
+            ticket.save()
+            messages.success(request, 'Support ticket submitted successfully!')
+            return redirect('help_support')
+    else:
+        form = SupportTicketForm()
+    
+    # Get FAQ categories
+    faq_categories = FAQCategory.objects.all().prefetch_related('faqs')
+    
+    context = {
+        'form': form,
+        'faq_categories': faq_categories,
+        'title': 'Help & Support',
+    }
+    return render(request, 'user_help_support.html', context)
+
+@login_required
+def user_settings_view(request):
+    """User settings page"""
+    user = request.user
+    profile = UserProfile.objects.get(user=user)
+    
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        if action == 'update_profile':
+            user_form = UserUpdateForm(request.POST, instance=user)
+            profile_form = UserProfileForm(request.POST, instance=profile)
+            
+            if user_form.is_valid() and profile_form.is_valid():
+                user_form.save()
+                profile_form.save()
+                messages.success(request, 'Profile updated successfully!')
+                return redirect('user_settings')
+                
+        elif action == 'change_password':
+            old_password = request.POST.get('old_password')
+            new_password = request.POST.get('new_password')
+            confirm_password = request.POST.get('confirm_password')
+            
+            if user.check_password(old_password):
+                if new_password == confirm_password:
+                    user.set_password(new_password)
+                    user.save()
+                    # Re-authenticate user
+                    update_session_auth_hash(request, user)
+                    messages.success(request, 'Password changed successfully!')
+                    return redirect('user_settings')
+                else:
+                    messages.error(request, 'New passwords do not match.')
+            else:
+                messages.error(request, 'Current password is incorrect.')
+                
+        elif action == 'update_notifications':
+            # Update notification preferences
+            email_notifications = request.POST.get('email_notifications') == 'on'
+            sms_notifications = request.POST.get('sms_notifications') == 'on'
+            
+            profile.email_notifications = email_notifications
+            profile.sms_notifications = sms_notifications
+            profile.save()
+            
+            messages.success(request, 'Notification preferences updated!')
+            return redirect('user_settings')
+    
+    else:
+        user_form = UserUpdateForm(instance=user)
+        profile_form = UserProfileForm(instance=profile)
+    
+    context = {
+        'user_form': user_form,
+        'profile_form': profile_form,
+        'title': 'Settings',
+    }
+    return render(request, 'user_settings.html', context)
+
+# ====================
+# MODELS (Additional)
+# ====================
+
+# Add these to your models.py
+
+class RepairAttachment(models.Model):
+    repair = models.ForeignKey(RepairRequest, on_delete=models.CASCADE, related_name='attachments')
+    file = models.FileField(upload_to='repair_attachments/%Y/%m/%d/')
+    file_name = models.CharField(max_length=255)
+    file_size = models.IntegerField()
+    file_type = models.CharField(max_length=100)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    
+    def get_file_size_display(self):
+        if self.file_size < 1024:
+            return f"{self.file_size} B"
+        elif self.file_size < 1024 * 1024:
+            return f"{self.file_size / 1024:.1f} KB"
+        else:
+            return f"{self.file_size / (1024 * 1024):.1f} MB"
+    
+    def __str__(self):
+        return self.file_name
+
+class RepairUpdate(models.Model):
+    repair = models.ForeignKey(RepairRequest, on_delete=models.CASCADE, related_name='updates')
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    update_type = models.CharField(max_length=50, choices=[
+        ('status_change', 'Status Change'),
+        ('technician_note', 'Technician Note'),
+        ('cost_update', 'Cost Update'),
+        ('user_update', 'User Update'),
+    ])
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"Update for Repair #{self.repair.id}"
+
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+    notification_type = models.CharField(max_length=50)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    related_id = models.IntegerField(null=True, blank=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"Notification for {self.user.username}: {self.title}"
+
+class FAQCategory(models.Model):
+    name = models.CharField(max_length=100)
+    icon = models.CharField(max_length=50, default='fas fa-question-circle')
+    order = models.IntegerField(default=0)
+    
+    class Meta:
+        ordering = ['order', 'name']
+    
+    def __str__(self):
+        return self.name
+
+class FAQ(models.Model):
+    category = models.ForeignKey(FAQCategory, on_delete=models.CASCADE, related_name='faqs')
+    question = models.CharField(max_length=255)
+    answer = models.TextField()
+    order = models.IntegerField(default=0)
+    
+    class Meta:
+        ordering = ['order', 'question']
+    
+    def __str__(self):
+        return self.question
+
+# ====================
+# FORMS (Additional)
+# ====================
+
+# Add these to your forms.py
+
+class RepairRequestForm(forms.ModelForm):
+    attachments = forms.FileField(
+        required=False,
+        widget=forms.ClearableFileInput(attrs={'multiple': True}),
+        help_text='Upload images or documents related to the problem (max 10MB each)'
+    )
+    
+    class Meta:
+        model = RepairRequest
+        fields = [
+            'device_type', 'device_brand', 'device_model', 'serial_number',
+            'problem_description', 'urgency_level', 'service_type',
+            'preferred_contact', 'estimated_budget', 'special_instructions'
+        ]
+        widgets = {
+            'problem_description': forms.Textarea(attrs={
+                'rows': 4,
+                'placeholder': 'Describe the problem in detail...'
+            }),
+            'special_instructions': forms.Textarea(attrs={
+                'rows': 2,
+                'placeholder': 'Any special requests for the technician...'
+            }),
+            'urgency_level': forms.Select(attrs={'class': 'form-control'}),
+            'service_type': forms.Select(attrs={'class': 'form-control'}),
+        }
+
+class RepairCommentForm(forms.ModelForm):
+    class Meta:
+        model = RepairUpdate
+        fields = ['description']
+        widgets = {
+            'description': forms.Textarea(attrs={
+                'rows': 3,
+                'placeholder': 'Add a comment...'
+            })
+        }
+
+class SupportTicketForm(forms.ModelForm):
+    class Meta:
+        model = SupportTicket
+        fields = ['subject', 'category', 'description', 'priority']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 4}),
+        }

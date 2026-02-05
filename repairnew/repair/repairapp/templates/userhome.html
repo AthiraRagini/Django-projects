@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard - RepairShop Pro</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1f2937;
+            --light: #f9fafb;
+            --gray: #6b7280;
+            --gray-light: #e5e7eb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, var(--dark) 0%, #111827 100%);
+            color: white;
+            min-height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+            padding: 0;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header {
+            padding: 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .logo-text h3 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, #d1d5db 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-text p {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            margin: 4px 0 0;
+            font-weight: 300;
+        }
+
+        .nav-menu {
+            padding: 20px 0;
+            flex-grow: 1;
+        }
+
+        .nav-item {
+            padding: 0 15px;
+            margin: 5px 0;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 0.95rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: linear-gradient(180deg, var(--primary) 0%, var(--primary-dark) 100%);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding-left: 22px;
+        }
+
+        .nav-link:hover::before {
+            transform: translateX(0);
+        }
+
+        .nav-link.active {
+            background: rgba(59, 130, 246, 0.2);
+            color: white;
+            padding-left: 22px;
+        }
+
+        .nav-link.active::before {
+            transform: translateX(0);
+        }
+
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .nav-link.logout {
+            color: #f87171;
+        }
+
+        .nav-link.logout:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            margin-left: 280px;
+            padding: 30px;
+            min-height: 100vh;
+        }
+
+        /* ===== PAGE HEADER ===== */
+        .navbar-custom {
+            background: white;
+            border-radius: 16px;
+            padding: 20px 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            border: 1px solid var(--gray-light);
+        }
+
+        .navbar-custom h4 {
+            font-weight: 700;
+            color: var(--dark);
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        /* ===== WELCOME SECTION ===== */
+        .welcome-section {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 20px;
+            padding: 35px 40px;
+            color: white;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            transform: translate(50%, -50%);
+        }
+
+        .welcome-content h2 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .welcome-content p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+            margin-bottom: 0;
+        }
+
+        .welcome-stats {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 12px 20px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            margin-top: 15px;
+            display: inline-block;
+        }
+
+        .welcome-stats i {
+            margin-right: 8px;
+        }
+
+        .btn-new-request {
+            background: white;
+            color: var(--primary);
+            border: none;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-new-request:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            background: #f8fafc;
+            color: var(--primary-dark);
+        }
+
+        /* ===== STATS CARDS ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--gray-light);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card.total::before {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
+        }
+
+        .stat-card.in-progress::before {
+            background: linear-gradient(90deg, var(--warning) 0%, #d97706 100%);
+        }
+
+        .stat-card.completed::before {
+            background: linear-gradient(90deg, var(--success) 0%, #059669 100%);
+        }
+
+        .stat-card.pending::before {
+            background: linear-gradient(90deg, var(--danger) 0%, #dc2626 100%);
+        }
+
+        .stat-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-text h3 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .stat-text p {
+            color: var(--gray);
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-icon.total {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.2) 100%);
+            color: var(--primary);
+        }
+
+        .stat-icon.in-progress {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.2) 100%);
+            color: var(--warning);
+        }
+
+        .stat-icon.completed {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.2) 100%);
+            color: var(--success);
+        }
+
+        .stat-icon.pending {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.2) 100%);
+            color: var(--danger);
+        }
+
+        /* ===== QUICK ACTIONS ===== */
+        .quick-actions-section {
+            margin-bottom: 30px;
+        }
+
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .quick-action-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+            border: 2px dashed var(--gray-light);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--dark);
+        }
+
+        .quick-action-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 12px 30px rgba(59, 130, 246, 0.1);
+        }
+
+        .action-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 1.8rem;
+            color: white;
+            box-shadow: 0 6px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .action-icon.history {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            box-shadow: 0 6px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .action-icon.invoice {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            box-shadow: 0 6px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .action-icon.profile {
+            background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%);
+            box-shadow: 0 6px 15px rgba(245, 158, 11, 0.3);
+        }
+
+        .quick-action-card h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .quick-action-card p {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        /* ===== REPAIR TABLE ===== */
+        .table-section {
+            margin-bottom: 30px;
+        }
+
+        .table-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--gray-light);
+        }
+
+        .table-header {
+            padding: 25px;
+            background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
+            color: white;
+        }
+
+        .table-header h5 {
+            margin: 0;
+            font-size: 1.3rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .table-container {
+            padding: 0;
+        }
+
+        .table {
+            margin: 0;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .table thead {
+            background: var(--light);
+        }
+
+        .table th {
+            padding: 18px 20px;
+            font-weight: 600;
+            color: var(--dark);
+            border: none;
+            border-bottom: 2px solid var(--gray-light);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table tbody tr {
+            transition: all 0.3s ease;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .table tbody tr:hover {
+            background: linear-gradient(90deg, #f8fafc 0%, #f1f5f9 100%);
+        }
+
+        .table td {
+            padding: 18px 20px;
+            vertical-align: middle;
+            border: none;
+            color: var(--dark);
+            font-size: 0.95rem;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+
+        .status-pending {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: #92400e;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+        }
+
+        .status-inprogress {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        }
+
+        .status-completed {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        }
+
+        .status-cancelled {
+            background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        }
+
+        /* Action Buttons */
+        .btn-action {
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            border: none;
+            text-decoration: none;
+        }
+
+        .btn-view {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            color: white;
+        }
+
+        .btn-track {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        .btn-update {
+            background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%);
+            color: white;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            color: white;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 30px;
+        }
+
+        .empty-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--gray-light) 0%, #d1d5db 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+            font-size: 2.5rem;
+            color: var(--gray);
+        }
+
+        .empty-state h4 {
+            font-size: 1.4rem;
+            color: var(--dark);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .empty-state p {
+            color: var(--gray);
+            max-width: 300px;
+            margin: 0 auto 20px;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            margin-top: 40px;
+            padding: 20px 0;
+            border-top: 1px solid var(--gray-light);
+            color: var(--gray);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1200px) {
+            .sidebar {
+                width: 240px;
+            }
+            .main-content {
+                margin-left: 240px;
+                padding: 25px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 220px;
+            }
+            .main-content {
+                margin-left: 220px;
+                padding: 20px;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .quick-actions-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                z-index: 2000;
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .quick-actions-grid {
+                grid-template-columns: 1fr;
+            }
+            .menu-toggle {
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                z-index: 1001;
+                background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+                color: white;
+                width: 50px;
+                height: 50px;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.3rem;
+                cursor: pointer;
+                box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 15px;
+            }
+            .welcome-section {
+                padding: 25px;
+            }
+            .welcome-content h2 {
+                font-size: 1.8rem;
+            }
+            .stat-card {
+                padding: 20px;
+            }
+            .stat-text h3 {
+                font-size: 2rem;
+            }
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .welcome-section, .stats-grid, .quick-actions-section, .table-card {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, #1d4ed8 100%);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Mobile Menu Toggle -->
+    <div class="menu-toggle" onclick="toggleSidebar()" style="display: none;">
+        <i class="fas fa-bars"></i>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-container">
+                <div class="logo-icon">
+                    <i class="fas fa-tools"></i>
+                </div>
+                <div class="logo-text">
+                    <h3>RepairShop Pro</h3>
+                    <p>User Dashboard</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-menu">
+            <div class="nav-item">
+                <a href="{% url 'userhome' %}" class="nav-link active">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'submit_repair_request' %}" class="nav-link">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>New Repair Request</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'profile2' %}" class="nav-link">
+                    <i class="fas fa-user-edit"></i>
+                    <span>User Profile</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'my_requests' %}" class="nav-link">
+                    <i class="fas fa-history"></i>
+                    <span>Repair History</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'update_profile' %}" class="nav-link">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Update Profile</span>
+                </a>
+            </div>
+           {% comment %} <div class="nav-item">
+    <a href="{% url 'user_payments' repair.id %}" class="nav-link">
+        <i class="fas fa-credit-card"></i>
+        <span>Payments</span>
+    </a>
+</div> {% endcomment %}
+
+            <div class="nav-item mt-auto">
+                <a href="{% url 'logout' %}" class="nav-link logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Navbar -->
+        <nav class="navbar navbar-custom">
+            <div class="d-flex justify-content-between w-100 align-items-center">
+                <h4>User Dashboard</h4>
+                <div class="d-flex align-items-center">
+                    <span class="text-muted">{{ current_date }} {{ current_time }}</span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="welcome-content">
+                        <h2>Welcome back, {{ user.first_name|default:user.username }}!</h2>
+                        <p>Track your repair requests, submit new enquiries, and manage your account.</p>
+                        {% if recent_repairs_count > 0 %}
+                        <div class="welcome-stats">
+                            <i class="fas fa-history"></i>
+                            {{ recent_repairs_count }} repairs in the last 30 days
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a href="{% url 'submit_repair_request' %}" class="btn btn-new-request">
+                        <i class="fas fa-plus"></i> New Repair Request
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card total">
+                <div class="stat-content">
+                    <div class="stat-text">
+                        <h3>{{ total_repairs }}</h3>
+                        <p>Total Repairs</p>
+                    </div>
+                    <div class="stat-icon total">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card in-progress">
+                <div class="stat-content">
+                    <div class="stat-text">
+                        <h3>{{ in_progress_repairs }}</h3>
+                        <p>In Progress</p>
+                    </div>
+                    <div class="stat-icon in-progress">
+                        <i class="fas fa-spinner"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card completed">
+                <div class="stat-content">
+                    <div class="stat-text">
+                        <h3>{{ completed_repairs }}</h3>
+                        <p>Completed</p>
+                    </div>
+                    <div class="stat-icon completed">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card pending">
+                <div class="stat-content">
+                    <div class="stat-text">
+                        <h3>{{ pending_repairs }}</h3>
+                        <p>Pending</p>
+                    </div>
+                    <div class="stat-icon pending">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions-section">
+            <h4 class="mb-3">Quick Actions</h4>
+            <div class="quick-actions-grid">
+                <a href="{% url 'submit_repair_request' %}" class="quick-action-card">
+                    <div class="action-icon">
+                        <i class="fas fa-plus-circle"></i>
+                    </div>
+                    <h4>New Repair Request</h4>
+                    <p>Submit a new repair request</p>
+                </a>
+                
+                <a href="{% url 'my_requests' %}" class="quick-action-card">
+                    <div class="action-icon history">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <h4>View History</h4>
+                    <p>Check all your repair history</p>
+                </a>
+                
+                <a href="#" class="quick-action-card">
+                    <div class="action-icon invoice">
+                        <i class="fas fa-file-invoice"></i>
+                    </div>
+                    <h4>View Invoices</h4>
+                    <p>Check and download invoices</p>
+                </a>
+                
+                <a href="{% url 'update_profile' %}" class="quick-action-card">
+                    <div class="action-icon profile">
+                        <i class="fas fa-user-edit"></i>
+                    </div>
+                    <h4>Update Profile</h4>
+                    <p>Update your personal details</p>
+                </a>
+            </div>
+        </div>
+
+        <!-- Recent Repairs Table -->
+        <div class="table-section">
+            <div class="table-card">
+                <div class="table-header">
+                    <h5><i class="fas fa-clipboard-list"></i> Recent Repair Requests</h5>
+                </div>
+                
+                <div class="table-container">
+                    {% if recent_repairs %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Repair ID</th>
+                                    <th>Device</th>
+                                    <th>Issue</th>
+                                    <th>Submitted</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for repair in recent_repairs %}
+                                <tr>
+                                    <td><strong>#R-{{ repair.id|stringformat:"04d" }}</strong></td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            {% if "laptop" in repair.device_type|lower %}
+                                            <i class="fas fa-laptop text-primary"></i>
+                                            {% elif "mobile" in repair.device_type|lower or "phone" in repair.device_type|lower %}
+                                            <i class="fas fa-mobile-alt text-primary"></i>
+                                            {% elif "tablet" in repair.device_type|lower %}
+                                            <i class="fas fa-tablet-alt text-primary"></i>
+                                            {% else %}
+                                            <i class="fas fa-desktop text-primary"></i>
+                                            {% endif %}
+                                            <span>{{ repair.device_type }} {{ repair.device_model }}</span>
+                                        </div>
+                                    </td>
+                                    <td>{{ repair.problem_description|truncatechars:30 }}</td>
+                                    <td>
+                                        {% if repair.created_at.date == timezone.now.date %}
+                                            <span class="text-success">Today</span>
+                                        {% else %}
+                                            {{ repair.created_at|timesince }} ago
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if repair.status == 'pending' %}
+                                            <span class="status-badge status-pending">
+                                                <i class="fas fa-clock"></i> Pending
+                                            </span>
+                                        {% elif repair.status == 'in_progress' %}
+                                            <span class="status-badge status-inprogress">
+                                                <i class="fas fa-spinner"></i> In Progress
+                                            </span>
+                                        {% elif repair.status == 'completed' %}
+                                            <span class="status-badge status-completed">
+                                                <i class="fas fa-check-circle"></i> Completed
+                                            </span>
+                                        {% elif repair.status == 'cancelled' %}
+                                            <span class="status-badge status-cancelled">
+                                                <i class="fas fa-times-circle"></i> Cancelled
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if repair.status == 'completed' %}
+                                            <a href="#" class="btn-action btn-view">
+                                                <i class="fas fa-eye me-1"></i> View
+                                            </a>
+                                        {% elif repair.status == 'in_progress' %}
+                                            <a href="#" class="btn-action btn-track">
+                                                <i class="fas fa-truck me-1"></i> Track
+                                            </a>
+                                        {% else %}
+                                            <a href="#" class="btn-action btn-update">
+                                                <i class="fas fa-edit me-1"></i> Update
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-tools"></i>
+                        </div>
+                        <h4>No Repair Requests Found</h4>
+                        <p>You haven't submitted any repair requests yet.</p>
+                        <a href="{% url 'submit_repair_request' %}" class="btn btn-new-request mt-3">
+                            <i class="fas fa-plus me-2"></i> Submit Your First Request
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                {% if total_repairs > 5 %}
+                <div class="text-end p-3 border-top">
+                    <a href="{% url 'my_requests' %}" class="btn btn-primary-custom">
+                        <i class="fas fa-list me-2"></i> View All Repairs
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="row">
+                <div class="col-md-6">
+                    <p>&copy; {{ current_date|date:"Y" }} RepairShop Pro - User Dashboard. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <p>Last updated: {{ current_date }} {{ current_time }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Toggle sidebar on mobile
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+        }
+
+        // Show mobile menu toggle on small screens
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.innerWidth <= 768) {
+                document.querySelector('.menu-toggle').style.display = 'flex';
+            }
+
+            // Add hover effects to table rows
+            const tableRows = document.querySelectorAll('.table tbody tr');
+            tableRows.forEach(row => {
+                row.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateX(5px)';
+                });
+                
+                row.addEventListener('mouseleave', function() {
+                    this.style.transform = '';
+                });
+            });
+
+            // Add click effect to quick action cards
+            const quickActionCards = document.querySelectorAll('.quick-action-card');
+            quickActionCards.forEach(card => {
+                card.addEventListener('click', function(e) {
+                    if (!this.href || this.href === '#') {
+                        e.preventDefault();
+                        this.style.transform = 'scale(0.95)';
+                        setTimeout(() => {
+                            this.style.transform = '';
+                        }, 150);
+                    }
+                });
+            });
+
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', function(event) {
+                const sidebar = document.querySelector('.sidebar');
+                const menuToggle = document.querySelector('.menu-toggle');
+                
+                if (window.innerWidth <= 768 && 
+                    !sidebar.contains(event.target) && 
+                    !menuToggle.contains(event.target) &&
+                    sidebar.classList.contains('active')) {
+                    sidebar.classList.remove('active');
+                }
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    document.querySelector('.menu-toggle').style.display = 'none';
+                    document.querySelector('.sidebar').classList.remove('active');
+                } else {
+                    document.querySelector('.menu-toggle').style.display = 'flex';
+                }
+            });
+
+            // Update time every minute
+            function updateTime() {
+                const now = new Date();
+                const timeElements = document.querySelectorAll('.text-muted:contains("Last updated")');
+                timeElements.forEach(el => {
+                    el.textContent = `Last updated: ${now.toLocaleDateString()} ${now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+                });
+            }
+            
+            setInterval(updateTime, 60000);
+        });
+    </script>
+</body>
+</html>
